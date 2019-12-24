@@ -200,6 +200,24 @@ public class BrokerController {
             RequestProcessor pubAckProcessor = new PubAckProcessor(flowMessageStore);
             RequestProcessor pubCompProcessor = new PubCompProcessor(flowMessageStore);
 
+        /*    
+         * https://mcxiaoke.gitbooks.io/mqtt-cn/content/mqtt/0306-PUBREL.html
+            3.0 Contents – MQTT控制报文
+            3.1 CONNECT – 连接服务端
+            3.2 CONNACK – 确认连接请求
+            3.3 PUBLISH – 发布消息
+            3.4 PUBACK –发布确认
+            3.5 PUBREC – 发布收到（QoS 2，第一步）
+            3.6 PUBREL – 发布释放（QoS 2，第二步）
+            3.7 PUBCOMP – 发布完成（QoS 2，第三步）
+            3.8 SUBSCRIBE - 订阅主题
+            3.9 SUBACK – 订阅确认
+            3.10 UNSUBSCRIBE –取消订阅
+            3.11 UNSUBACK – 取消订阅确认
+            3.12 PINGREQ – 心跳请求
+            3.13 PINGRESP – 心跳响应
+            3.14 DISCONNECT –断开连接
+*/            
             this.remotingServer.registerProcessor(MqttMessageType.CONNECT, connectProcessor, connectExecutor);
             this.remotingServer.registerProcessor(MqttMessageType.DISCONNECT, disconnectProcessor, connectExecutor);
             this.remotingServer.registerProcessor(MqttMessageType.PINGREQ, pingProcessor, pingExecutor);

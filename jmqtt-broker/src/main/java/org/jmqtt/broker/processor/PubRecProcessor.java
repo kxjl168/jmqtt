@@ -21,6 +21,13 @@ public class PubRecProcessor implements RequestProcessor {
         this.flowMessageStore = flowMessageStore;
     }
 
+    /**
+     * PUBREC – 发布收到（QoS 2，第一步回复消息）
+     * @param ctx
+     * @param mqttMessage
+     * @author zj
+     * @date 2019年12月16日
+     */
     @Override
     public void processRequest(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         String clientId = NettyUtil.getClientId(ctx.channel());

@@ -27,6 +27,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 集群netty服务端,提供给集群内部发现节点/节点状态/内部消息转发判断使用
+ * NettyClusterRemotingServer.java.
+ * 
+ * @author zj
+* @version 1.0.1 2019年12月12日
+* @revision zj 2019年12月12日
+* @since 1.0.1
+ */
 public class NettyClusterRemotingServer extends AbstractNettyCluster implements ClusterRemotingServer {
 
     private static final Logger log = LoggerFactory.getLogger(LoggerName.CLUSTER);

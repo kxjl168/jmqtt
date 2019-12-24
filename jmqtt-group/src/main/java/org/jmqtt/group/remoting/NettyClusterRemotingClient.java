@@ -16,8 +16,10 @@ import org.jmqtt.common.helper.MixAll;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.group.ClusterRemotingClient;
+import org.jmqtt.group.common.ClusterNodeManager;
 import org.jmqtt.group.common.InvokeCallback;
 import org.jmqtt.group.protocol.ClusterRemotingCommand;
+import org.jmqtt.group.protocol.CommandConstant;
 import org.jmqtt.group.protocol.MessageFlag;
 import org.jmqtt.group.remoting.codec.NettyClusterDecoder;
 import org.jmqtt.group.remoting.codec.NettyClusterEncoder;
@@ -33,6 +35,15 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * 集群netty客户端，用于本节点访问集群内其他节点使用。
+ * NettyClusterRemotingClient.java.
+ * 
+ * @author zj
+* @version 1.0.1 2019年12月12日
+* @revision zj 2019年12月12日
+* @since 1.0.1
+ */
 public class NettyClusterRemotingClient extends AbstractNettyCluster implements ClusterRemotingClient {
 
     private static final Logger log = LoggerFactory.getLogger(LoggerName.CLUSTER);
@@ -118,6 +129,14 @@ public class NettyClusterRemotingClient extends AbstractNettyCluster implements 
                     command.setBody(body);
                     command.setFlag(MessageFlag.COMPRESSED_FLAG);
                 }
+                
+             
+                //zj add 
+             
+                command.putExtFiled(CommandConstant.NODE_ADDRESS,ClusterNodeManager.getInstance().getCurrentNode().getAddr());
+                command.putExtFiled(CommandConstant.NODE_NAME,ClusterNodeManager.getInstance().getCurrentNode().getNodeName());
+                command.putExtFiled(CommandConstant.TO_NODE_ADDRESS,addr);
+                
                 this.invokeAsyncImpl(channel,command,timeoutMills,callback);
             }catch(Exception ex){
                 throw new RemotingSendRequestException(ex.getMessage());

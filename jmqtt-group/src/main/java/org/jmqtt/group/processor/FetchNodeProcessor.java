@@ -7,6 +7,7 @@ import org.jmqtt.group.common.ClusterNodeManager;
 import org.jmqtt.group.protocol.ClusterRemotingCommand;
 import org.jmqtt.group.protocol.ClusterRequestCode;
 import org.jmqtt.group.protocol.ClusterResponseCode;
+import org.jmqtt.group.protocol.CommandConstant;
 import org.jmqtt.group.protocol.node.ServerNode;
 import org.jmqtt.remoting.util.RemotingHelper;
 import org.slf4j.Logger;
@@ -31,11 +32,21 @@ public class FetchNodeProcessor implements ClusterRequestProcessor {
             serverNode.setActive(true);
             ServerNode prevNode = ClusterNodeManager.getInstance().putNewNode(serverNode);
             if (prevNode != null) {
-                log.info("fetch node request prev node is not null,nodeName:{},nodeAddr:{},nodeActive:{}", prevNode.getNodeName(), prevNode.getAddr(), prevNode.isActive());
+                //log.info("fetch node request prev node is not null,nodeName:{},nodeAddr:{},nodeActive:{}", prevNode.getNodeName(), prevNode.getAddr(), prevNode.isActive());
+            	//zj
+            	
+            	//String fromnode=cmd.getExtField(CommandConstant.NODE_ADDRESS);
+            			   
+                log.debug("***ClusterServer**** fetch node request processed: from node {}, it is now Active",serverNode.getAddr());
+                
             }
             Set<ServerNode> ownActiveNodes = ClusterNodeManager.getInstance().getActiveNodes();
             ClusterRemotingCommand responseCommand = new ClusterRemotingCommand(ClusterRequestCode.FETCH_NODES);
             responseCommand.setBody(SerializeHelper.serialize(ownActiveNodes));
+            
+            //zj 191213 add
+            responseCommand.setResponseCode(ClusterResponseCode.RESPONSE_OK);
+            
             return responseCommand;
         } else {
             log.warn("remote node is null,addr={}", RemotingHelper.getRemoteAddr(ctx.channel()));

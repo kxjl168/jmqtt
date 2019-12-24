@@ -29,6 +29,13 @@ public class PubRelProcessor extends AbstractMessageProcessor implements Request
         this.flowMessageStore = controller.getFlowMessageStore();
     }
 
+    /**
+     * PUBREL – 发布释放（QoS 2，第二步接收到的消息）
+     * @param ctx
+     * @param mqttMessage
+     * @author zj
+     * @date 2019年12月16日
+     */
     @Override
     public void processRequest(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         String clientId = NettyUtil.getClientId(ctx.channel());

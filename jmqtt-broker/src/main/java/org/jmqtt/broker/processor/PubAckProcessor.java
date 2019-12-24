@@ -21,6 +21,13 @@ public class PubAckProcessor implements RequestProcessor {
         this.flowMessageStore = flowMessageStore;
     }
 
+    /**
+     * PUBACK –收到客户端已接收发送的消息后 发布确认 qos1/ qos2
+     * @param ctx
+     * @param mqttMessage
+     * @author zj
+     * @date 2019年12月16日 备注
+     */
     @Override
     public void processRequest(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         String clientId = NettyUtil.getClientId(ctx.channel());

@@ -33,7 +33,10 @@ public class SerializeHelper {
 
     public static <T> List<T> deserializeList(byte[] bytes, Class<T> clazz){
         try{
-            String json = JSONObject.toJSONString(bytes);
+        	//JSONObject.parseArray(new String(bytes),clazz)
+        	
+        	//zj 
+            String json = new String(bytes,"utf-8");
             List<T> result = JSONObject.parseArray(json,clazz);
             return result;
         }catch (Exception ex){

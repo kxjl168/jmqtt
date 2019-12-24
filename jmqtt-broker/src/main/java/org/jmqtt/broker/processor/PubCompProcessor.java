@@ -19,6 +19,13 @@ public class PubCompProcessor implements RequestProcessor {
         this.flowMessageStore = flowMessageStore;
     }
 
+    /**
+     * PUBCOMP – 发布完成（QoS 2，第三步）
+     * @param ctx
+     * @param mqttMessage
+     * @author zj
+     * @date 2019年12月16日
+     */
     @Override
     public void processRequest(ChannelHandlerContext ctx, MqttMessage mqttMessage) {
         String clientId = NettyUtil.getClientId(ctx.channel());

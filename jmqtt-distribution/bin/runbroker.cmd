@@ -5,11 +5,24 @@ set "JAVA=%JAVA_HOME%\bin\java.exe"
 
 setlocal
 
-set BASE_DIR=%~dp0
-set BASE_DIR=%BASE_DIR:~0,-1%
-for %%d in (%BASE_DIR%) do set BASE_DIR=%%~dpd
+
+
+
+rem set BASE_DIR=%~dp0
+
+set BASE_DIR=%JMQTT_HOME%\
+
+echo %BASE_DIR%
+
+rem  set BASE_DIR=%BASE_DIR:~0,-1%
+rem for %%d in (%BASE_DIR%) do set BASE_DIR=%%~dpd
+
+
+rem  echo %BASE_DIR%
 
 set CLASSPATH=.;%BASE_DIR%conf;%CLASSPATH%
+
+
 
 rem ===========================================================================================
 rem  JVM Configuration

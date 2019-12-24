@@ -11,6 +11,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * cluster remoting command
+ * 必须每次使用new 一个 <br>
+ * opaque <AtomicInteger> 在初始化时默认自增
+ * ClusterRemotingCommand.java.
+ * 
+ * @author zj
+* @version 1.0.1 2019年12月23日
+* @revision zj 2019年12月23日 备注
+* @since 1.0.1
  */
 public class ClusterRemotingCommand {
     
@@ -19,13 +27,27 @@ public class ClusterRemotingCommand {
     private static final AtomicInteger requestId = new AtomicInteger(0);
 
     /**
-     * cluster request code
+     * cluster request code  ,请求的业务类型(add zj)
      */
     private int code;
+    
+    /**
+     * 返回的状态 zj add cluster response code
+     */
+    private int responseCode=ClusterResponseCode.ERROR_RESPONSE;
+    
+    
     /**
      * {@link MessageFlag}
      */
     private int flag;
+    
+    
+    /**
+     * zj 重发次数
+     */
+    private int errorNum=0;
+    
     /**
      * 0:request
      * 1:response
@@ -125,6 +147,7 @@ public class ClusterRemotingCommand {
                 ", rpcType=" + rpcType +
                 ", opaque=" + opaque +
                 ", extField=" + extField +
+                ", responseCode=" + responseCode +
                 '}';
     }
 
@@ -134,10 +157,27 @@ public class ClusterRemotingCommand {
         if (o == null || getClass() != o.getClass()) return false;
         ClusterRemotingCommand cmd = (ClusterRemotingCommand) o;
         return code == cmd.code &&
+        		responseCode == cmd.responseCode &&
                 flag == cmd.flag &&
                 rpcType == cmd.rpcType &&
                 opaque == cmd.opaque &&
                 Objects.equals(extField,cmd.extField) &&
                 Arrays.equals(body,cmd.body);
     }
+
+	public int getResponseCode() {
+		return responseCode;
+	}
+
+	public void setResponseCode(int responseCode) {
+		this.responseCode = responseCode;
+	}
+
+	public int getErrorNum() {
+		return errorNum;
+	}
+
+	public void setErrorNum(int errorNum) {
+		this.errorNum = errorNum;
+	}
 }

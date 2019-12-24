@@ -287,6 +287,13 @@ public class InnerMessageTransfer{
         this.offlineMessageStore.clearOfflineMsgCache(clientId);
     }
 
+    /**
+     * 从之前登陆的节点上把订阅关系转给当前登陆节点
+     * @param clientId
+     * @param originNode
+     * @author zj
+     * @date 2019年12月13日 备注
+     */
     private void transferSession(String clientId, String originNode) {
         ServerNode serverNode = ClusterNodeManager.getInstance().getNode(originNode);
         if (serverNode == null || !serverNode.isActive()) {
@@ -307,9 +314,16 @@ public class InnerMessageTransfer{
         remotingCommand.setBody(body);
         send(originNode,remotingCommand);
         this.subscriptionStore.clearSubscription(clientId);
-        this.offlineMessageStore.clearOfflineMsgCache(clientId);
+       // this.offlineMessageStore.clearOfflineMsgCache(clientId);
     }
 
+    /**
+     * 从之前登陆的节点上把消息及离线消息转移至新登陆节点
+     * @param clientId
+     * @param originNode
+     * @author zj
+     * @date 2019年12月13日 备注
+     */
     private void transferOfflineMessage(String clientId, String originNode) {
         Collection<Message> flowSendMessages = this.flowMessageStore.getAllSendMsg(clientId);
         for(Message message : flowSendMessages){

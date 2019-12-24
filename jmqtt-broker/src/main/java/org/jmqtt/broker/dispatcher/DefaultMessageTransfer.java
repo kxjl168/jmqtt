@@ -39,6 +39,12 @@ public class DefaultMessageTransfer implements MessageTransfer {
         this.clusterRemotingServer = clusterRemotingServer;
     }
 
+    /**
+     * 给所有节点发送消息，排除自身节点
+     * @param message
+     * @author zj
+     * @date 2019年12月13日
+     */
     @Override
     public void send(ClusterRemotingCommand message) {
         Set<ServerNode> activeNodes = ClusterNodeManager.getInstance().getActiveNodes();
@@ -46,10 +52,21 @@ public class DefaultMessageTransfer implements MessageTransfer {
             log.debug("send message to cluster:there is no other active node");
             return;
         }
+        
+        //zj
+        ServerNode currNode=ClusterNodeManager.getInstance().getCurrentNode();
+        
         long timeoutMillis = 3000;
         for (ServerNode node : activeNodes){
             String addr = node.getAddr();
             try {
+            	
+            	//zj 排除自身节点，避免重发等问题
+            	if(node.equals(currNode))
+            		continue;
+            	
+            	log.info("inner cluster send message from {} to {}",currNode.getAddr(),node.getAddr());
+            	
                 this.clusterRemotingClient.invokeAsync(addr, message, timeoutMillis, new InvokeCallback() {
                     @Override
                     public void invokeComplete(ResponseFuture responseFuture) {

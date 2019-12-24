@@ -1,0 +1,1 @@
+jmqttstart.cmd -c F:\w3\jmqtt-3\j-node2\conf\jmqtt2.properties  -h F:\w3\jmqtt-3\j-node2

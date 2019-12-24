@@ -44,6 +44,12 @@ public class BrokerStartup {
         if(commandLine != null){
             jmqttHome = commandLine.getOptionValue("h");
             jmqttConfigPath = commandLine.getOptionValue("c");
+            
+            //add zj
+            Properties ps=new Properties();
+            ps.setProperty("jmqttHome", jmqttHome);
+            MixAll.properties2POJO(ps,brokerConfig);
+            
         }
         if(StringUtils.isNotEmpty(jmqttConfigPath)){
             initConfig(jmqttConfigPath,brokerConfig,nettyConfig,storeConfig, clusterConfig);
@@ -54,6 +60,9 @@ public class BrokerStartup {
         if(StringUtils.isEmpty(jmqttHome)){
             throw new Exception("please set JMQTT_HOME.");
         }
+        
+        
+        
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         JoranConfigurator configurator = new JoranConfigurator();
         configurator.setContext(lc);
