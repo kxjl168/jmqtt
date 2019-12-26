@@ -13,6 +13,7 @@ import org.jmqtt.group.protocol.ClusterRemotingCommand;
 import org.jmqtt.group.protocol.ClusterRequestCode;
 import org.jmqtt.group.protocol.CommandConstant;
 import org.jmqtt.group.protocol.node.ServerNode;
+import org.jmqtt.remoting.session.ConnectManager;
 import org.jmqtt.remoting.util.RemotingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,13 +72,13 @@ public class ClusterOuterAPI {
 				public void run() {
 					registerOwnAndFetchNode();
 				}
-			}, 5 * 1000, NODE_ACTIVE_TIME_MILLIS, TimeUnit.MILLISECONDS);
+			}, 10 * 1000, NODE_ACTIVE_TIME_MILLIS, TimeUnit.MILLISECONDS);
 			this.scheduleScanNode.scheduleAtFixedRate(new Runnable() {
 				@Override
 				public void run() {
 					scanClusterNodes();
 				}
-			}, 10 * 1000, (int) (NODE_ACTIVE_TIME_MILLIS * 1.5), TimeUnit.MILLISECONDS);
+			}, 15 * 1000, (int) (NODE_ACTIVE_TIME_MILLIS * 1.5), TimeUnit.MILLISECONDS);
 			
 			
 		}
@@ -85,8 +86,12 @@ public class ClusterOuterAPI {
 
 	private void scanClusterNodes() {
 		Set<ServerNode> nodes = ClusterNodeManager.getInstance().getAllNodes();
-		log.debug("cluster current connect nodes:{},{}",nodes.size(), nodes);
+		
+		ConnectManager.getInstance(). printAllSession();
 		for (ServerNode node : nodes) {
+			
+			
+			
 			long diff = System.currentTimeMillis() - node.getLastUpdateTime();
 			if (diff < NODE_ACTIVE_TIME_MILLIS * 1.5) {
 				continue;
@@ -98,6 +103,13 @@ public class ClusterOuterAPI {
 				log.info("remove not active node,nodeName={},nodeAddr={}", node.getNodeName(), node.getAddr());
 			}
 		}
+		String nodelist="";
+		
+		nodes = ClusterNodeManager.getInstance().getAllNodes();
+		for (ServerNode node : nodes) {
+			nodelist+= node.getAddr()+"["+node.getNodeName()+"],";
+		}
+		log.debug("【cluster current connect nodes are {} 】: {}",nodes.size(), nodelist);
 	}
 
 	/**
@@ -143,6 +155,20 @@ public class ClusterOuterAPI {
 		String[] nodesStr = clusterConfig.getGroupNodes().split(";");
 	
 		for (String nodeAddr : nodesStr) {
+			
+			boolean isFecth=false;
+			for (ServerNode remoteNode : nodes) {
+				if(remoteNode.getAddr().equals(nodeAddr))
+				{
+					isFecth=true;
+					break;
+				}
+			}
+			//只发送本地节点未发送过的
+			if(isFecth)
+				continue;
+			
+			
 			log.debug("===to config nodes: {} ",nodeAddr);
 			
 			ClusterRemotingCommand remotingCommand = new ClusterRemotingCommand(ClusterRequestCode.FETCH_NODES);

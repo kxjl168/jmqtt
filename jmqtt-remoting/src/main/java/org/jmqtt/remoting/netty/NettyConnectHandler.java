@@ -32,7 +32,7 @@ public class NettyConnectHandler extends ChannelDuplexHandler {
 			ByteBuf buf = ctx.alloc().buffer(bytesWrite.length);
 			//log.debug("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 			// log.debug("回发发送的信息为：" + ByteUtil.Bytes2HexString(bytesWrite));
-			log.info("------回发发送的信息为：" + bytesWrite);
+			log.debug("------回发发送的信息为：" + bytesWrite);
 			buf.writeBytes(bytesWrite);
 			ctx.writeAndFlush(buf).addListener((ChannelFutureListener) future -> log.debug("发送成功！"));
 			//log.debug("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
@@ -40,7 +40,7 @@ public class NettyConnectHandler extends ChannelDuplexHandler {
 			MqttMessage mqmsg = (MqttMessage) msg;
 			String txtmsg = mqmsg.toString();
 
-			log.info("-------回发发送的信息为：" + txtmsg);
+			log.debug("-------回发发送的信息为：" + txtmsg);
 			ctx.writeAndFlush(msg).addListener((ChannelFutureListener) future -> log.debug("发送成功！"));
 		}
 		

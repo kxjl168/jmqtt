@@ -17,7 +17,8 @@ import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageType;
-import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.timeout.IdleStateHandler;import io.netty.util.concurrent.GenericFutureListener;
+
 import org.jmqtt.common.config.BrokerConfig;
 import org.jmqtt.common.config.NettyConfig;
 import org.jmqtt.common.helper.MixAll;
@@ -27,6 +28,7 @@ import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.remoting.RemotingService;
 import org.jmqtt.remoting.netty.codec.ByteBuf2WebSocketEncoder;
 import org.jmqtt.remoting.netty.codec.WebSocket2ByteBufDecoder;
+import org.jmqtt.remoting.util.RemotingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +128,11 @@ public class NettyRemotingServer implements RemotingService {
 			bootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 		}
 		try {
-			ChannelFuture future = bootstrap.bind(port).sync();
+			String localip=RemotingHelper.getLocalAddr();
+			log.info("local ip:"+localip);
+			
+			ChannelFuture future = bootstrap.bind(localip,port).sync();
+			future.addListener((ChannelFutureListener) futured -> log.info("*****Websocket start complete!**  ssl enable: {}***",useSsl));
 			log.info("Start webSocket server {}  success,port = {}", useSsl ? "with ssl" : "", port);
 		} catch (InterruptedException ex) {
 			log.error("Start webSocket server {} failure.cause={}", useSsl ? "with ssl" : "", ex);
@@ -157,8 +163,8 @@ public class NettyRemotingServer implements RemotingService {
 								.addLast("mqttEncoder", MqttEncoder.INSTANCE)
 								.addLast("mqttDecoder", new MqttDecoder(nettyConfig.getMaxMsgSize()))
 								.addLast("nettyConnectionManager", new NettyConnectHandler(nettyEventExcutor))
-								.addLast("nettyMqttHandler", new NettyMqttHandler())
-								.addLast("outHandler", new NettyOutHandler());
+								.addLast("nettyMqttHandler", new NettyMqttHandler());
+							
 					}
 				});
 		if (nettyConfig.isPooledByteBufAllocatorEnable()) {
@@ -166,6 +172,7 @@ public class NettyRemotingServer implements RemotingService {
 		}
 		try {
 			ChannelFuture future = bootstrap.bind(port).sync();
+			future.addListener((ChannelFutureListener) futured -> log.info("*****TcpServer start complete!**  ssl enable: {}***",useSsl));
 			log.info("Start tcp server {} success,port = {}", useSsl ? "with ssl" : "", port);
 		} catch (InterruptedException ex) {
 			log.error("Start tcp server {} failure.cause={}", useSsl ? "with ssl" : "", ex);
@@ -198,7 +205,7 @@ public class NettyRemotingServer implements RemotingService {
 				
 				MqttMessageType messageType = mqttMessage.fixedHeader().messageType();
 				//log.info("+++[Remoting] -> receive mqtt code,type:{}", messageType.value());
-				log.info("+++++++[Remoting] -> receive data {}", messageType);
+				log.debug("+++++++[Remoting] -> receive data {}", messageType);
 				Runnable runnable = new Runnable() {
 					@Override
 					public void run() {
@@ -217,28 +224,6 @@ public class NettyRemotingServer implements RemotingService {
 
 	}
 
-	class NettyOutHandler extends ChannelOutboundHandlerAdapter {
 
-		@Override
-		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-			if (msg instanceof byte[]) {
-				byte[] bytesWrite = (byte[]) msg;
-				ByteBuf buf = ctx.alloc().buffer(bytesWrite.length);
-				log.debug("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-				// log.debug("回发发送的信息为：" + ByteUtil.Bytes2HexString(bytesWrite));
-				log.info("回发发送的信息为：" + bytesWrite);
-				buf.writeBytes(bytesWrite);
-				ctx.writeAndFlush(buf).addListener((ChannelFutureListener) future -> log.debug("发送成功！"));
-				log.debug("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-			} else if (msg instanceof MqttMessage) {
-				MqttMessage mqmsg = (MqttMessage) msg;
-				String txtmsg = mqmsg.toString();
-
-				log.info("回发发送的信息为：" + txtmsg);
-				ctx.writeAndFlush(msg).addListener((ChannelFutureListener) future -> log.debug("发送成功！"));
-			}
-		}
-
-	}
 
 }

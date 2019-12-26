@@ -122,7 +122,7 @@ public abstract class AbstractNettyCluster {
 				// RemotingHelper.getRemoteAddr(channel);
 
 				// zj
-				log.debug("****cluster inner request begin***  opaque :{},requestType:{}", opaque, command.getCode()+":"+getRequestType(command.getCode()));
+				log.debug("****cluster inner request begin***  opaque :{}, dest:{},requestType:{},chnnel:{}", opaque,remotingAddr,  command.getCode()+":"+getRequestType(command.getCode()),channel.toString());
 
 				channel.writeAndFlush(command).addListener(new ChannelFutureListener() {
 					@Override
@@ -132,7 +132,7 @@ public abstract class AbstractNettyCluster {
 							return;
 						}
 						requestFail(opaque, command);
-						log.warn("send a request command to channel <{}> failed.", remotingAddr);
+						log.warn("【cluster error】 inner send a request command to channel <{}> failed.", remotingAddr);
 					}
 				});
 			} else {

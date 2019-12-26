@@ -56,6 +56,8 @@ public class NettyClusterRemotingClient extends AbstractNettyCluster implements 
     private Lock lockChannelTable = new ReentrantLock();
     private ScheduledExecutorService schudure = new ScheduledThreadPoolExecutor(1,new ThreadFactoryImpl("ScanResponseTableThread"));
     private final int LOCK_CHANNEL_TIMEOUT = 3000;
+    
+    private final int CHANNEL_CONNETCT_TIMEOUT = 1000;
     private final ConcurrentMap<String,Channel> channelTable = new ConcurrentHashMap<>();
 
     public NettyClusterRemotingClient(ClusterConfig clusterConfig){
@@ -78,7 +80,7 @@ public class NettyClusterRemotingClient extends AbstractNettyCluster implements 
     public void start() {
         this.bootstrap.group(ioGroup)
                 .channel(clazz)
-                .option(ChannelOption.SO_BACKLOG, clusterConfig.getGroupTcpBackLog())
+                //.option(ChannelOption.SO_BACKLOG, clusterConfig.getGroupTcpBackLog())
                 .option(ChannelOption.SO_SNDBUF, clusterConfig.getGroupTcpSndBuf())
                 .option(ChannelOption.SO_RCVBUF, clusterConfig.getGroupTcpRcvBuf())
                 .option(ChannelOption.SO_REUSEADDR, clusterConfig.isGroupTcpReuseAddr())
@@ -156,8 +158,17 @@ public class NettyClusterRemotingClient extends AbstractNettyCluster implements 
         return createChannel(addr);
     }
 
+    /**
+     * 连接目标节点，并等待连接成功
+     * @param addr
+     * @return
+     * @author zj
+     * @date 2019年12月24日 备注
+     */
     private Channel createChannel(String addr){
         // new connect
+    	
+    	Channel channelrst=null;
         try {
             if(lockChannelTable.tryLock(LOCK_CHANNEL_TIMEOUT, TimeUnit.MILLISECONDS)){
                 Channel channel = this.channelTable.get(addr);
@@ -168,16 +179,24 @@ public class NettyClusterRemotingClient extends AbstractNettyCluster implements 
                 ChannelFuture channelFuture = this.bootstrap.connect(RemotingHelper.string2SocketAddress(addr));
                 Channel newChannel = channelFuture.channel();
                 this.channelTable.put(addr,newChannel);
-                return newChannel;
+                
+                channelrst=newChannel;
+                //zj 等待
+                channelFuture.get(CHANNEL_CONNETCT_TIMEOUT, TimeUnit.MILLISECONDS);//等待连接完成
+              
             }else{
                 log.warn("try lock channel table to cache channel failure,addr:{}",addr);
             }
         } catch (InterruptedException e) {
             log.warn("create new channel failure,remote address={},ex={}",addr,e);
-        }finally {
+        } catch (ExecutionException e) {
+        	 log.warn("create new channel execution error,remote address={},ex={}",addr,e);
+		} catch (TimeoutException e) {
+			 log.warn(" 【create new channel timeout】 ,remote address={},ex={}",addr,e.getMessage());
+		}finally {
             lockChannelTable.unlock();
         }
-        return null;
+        return channelrst;
     }
 
     private class NettyClientHandler extends SimpleChannelInboundHandler<ClusterRemotingCommand>{

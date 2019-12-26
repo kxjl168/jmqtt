@@ -239,7 +239,8 @@ public class InnerMessageTransfer{
         String originNode = clusterRemotingCommand.getExtField().get(CommandConstant.NODE_NAME);
         ClientSession currentNodeSession = ConnectManager.getInstance().getClient(clientId);
         if (currentNodeSession != null) {
-            connLog.debug("this client is connecting to this node,clientId={}", clientId);
+            connLog.info("this client is now connecting to this node,clientId={}", clientId);
+            connLog.info("clean cur node session and subscrib info ,transfor to {}", originNode);
             if (originSession.isCleanSession()) {
                 clearSession(clientId);
             } else {
@@ -288,7 +289,7 @@ public class InnerMessageTransfer{
     }
 
     /**
-     * 从之前登陆的节点上把订阅关系转给当前登陆节点
+     * 从本节点把该客户端之前登陆的订阅关系转给当前最新登陆节点
      * @param clientId
      * @param originNode
      * @author zj
@@ -314,11 +315,11 @@ public class InnerMessageTransfer{
         remotingCommand.setBody(body);
         send(originNode,remotingCommand);
         this.subscriptionStore.clearSubscription(clientId);
-       // this.offlineMessageStore.clearOfflineMsgCache(clientId);
+     
     }
 
     /**
-     * 从之前登陆的节点上把消息及离线消息转移至新登陆节点
+     *从本节点把该客户端之前的消息及离线消息转移至当前新新登陆节点
      * @param clientId
      * @param originNode
      * @author zj

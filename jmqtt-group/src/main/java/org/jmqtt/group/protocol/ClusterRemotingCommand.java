@@ -10,160 +10,164 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * cluster remoting command
- * 必须每次使用new 一个 <br>
- * opaque <AtomicInteger> 在初始化时默认自增
- * ClusterRemotingCommand.java.
+ * 集群内部消息结构<br>
+ * cluster remoting command 必须每次使用new 一个 <br>
+ * opaque <AtomicInteger> 在初始化时默认自增 ClusterRemotingCommand.java.
  * 
  * @author zj
-* @version 1.0.1 2019年12月23日
-* @revision zj 2019年12月23日 备注
-* @since 1.0.1
+ * @version 1.0.1 2019年12月23日
+ * @revision zj 2019年12月23日 备注
+ * @since 1.0.1
  */
 public class ClusterRemotingCommand {
-    
-    private static final Logger log = LoggerFactory.getLogger(LoggerName.CLUSTER);
 
-    private static final AtomicInteger requestId = new AtomicInteger(0);
+	private static final Logger log = LoggerFactory.getLogger(LoggerName.CLUSTER);
 
-    /**
-     * cluster request code  ,请求的业务类型(add zj)
-     */
-    private int code;
-    
-    /**
-     * 返回的状态 zj add cluster response code
-     */
-    private int responseCode=ClusterResponseCode.ERROR_RESPONSE;
-    
-    
-    /**
-     * {@link MessageFlag}
-     */
-    private int flag;
-    
-    
-    /**
-     * zj 重发次数
-     */
-    private int errorNum=0;
-    
-    /**
-     * 0:request
-     * 1:response
-     */
-    private int rpcType = 0;
-    private int opaque = requestId.incrementAndGet();
-    private HashMap<String,String> extField = new HashMap<>();
-    private transient byte[] body;
+	private static final AtomicInteger requestId = new AtomicInteger(0);
 
-    public ClusterRemotingCommand(){
+	/**
+	 * cluster request code ,请求的业务类型(add zj)
+	 */
+	private int code;
 
-    }
+	/**
+	 * 返回的状态 zj add cluster response code
+	 */
+	private int responseCode = ClusterResponseCode.ERROR_RESPONSE;
 
-    public ClusterRemotingCommand(int code) {
-        this.code = code;
-    }
+	/**
+	 * {@link MessageFlag}
+	 */
+	private int flag;
 
-    public ClusterRemotingCommand(int code,byte[] body) {
-        this.code = code;
-        this.body = body;
-    }
+	/**
+	 * zj 重发次数
+	 */
+	private int errorNum = 0;
 
-    public void makeResponseType(){
-        this.rpcType = 1;
-    }
+	/**
+	 * 0:request 1:response
+	 */
+	private int rpcType = 0;
+	private int opaque = requestId.incrementAndGet();
+	private HashMap<String, String> extField = new HashMap<>();
+	private transient byte[] body;
 
-    public void putExtFiled(String key,String value){
-        this.extField.put(key,value);
-    }
+	public ClusterRemotingCommand() {
 
+		checkIntMax();
+	}
 
-    public String getExtField(String key){
-        return this.extField.get(key);
-    }
-    public RemotingCommandType getType(){
-        if(rpcType == 0){
-            return RemotingCommandType.REQUEST_COMMAND;
-        }
-        return RemotingCommandType.RESPONSE_COMMAND;
-    }
+	/**
+	 * 
+	 * AtomicInteger 最大超限重置
+	 * @author zj
+	 * @date 2019年12月24日
+	 */
+	private void checkIntMax() {
 
-    public int getCode() {
-        return code;
-    }
+		if (opaque >= 2147483640) { //2147483640
+			requestId.compareAndSet(opaque, 0);
+		}
 
-    public void setCode(int code) {
-        this.code = code;
-    }
+	}
 
-    public int getFlag() {
-        return flag;
-    }
+	public ClusterRemotingCommand(int code) {
+		this.code = code;
 
-    public void setFlag(int flag) {
-        this.flag = flag;
-    }
+		checkIntMax();
+	}
 
-    public int getOpaque() {
-        return opaque;
-    }
+	public ClusterRemotingCommand(int code, byte[] body) {
+		this.code = code;
+		this.body = body;
 
-    public void setOpaque(int opaque) {
-        this.opaque = opaque;
-    }
+		checkIntMax();
+	}
 
-    public HashMap<String, String> getExtField() {
-        return extField;
-    }
+	public void makeResponseType() {
+		this.rpcType = 1;
+	}
 
-    public void setExtField(HashMap<String, String> extField) {
-        this.extField = extField;
-    }
+	public void putExtFiled(String key, String value) {
+		this.extField.put(key, value);
+	}
 
-    public byte[] getBody() {
-        return body;
-    }
+	public String getExtField(String key) {
+		return this.extField.get(key);
+	}
 
-    public void setBody(byte[] body) {
-        this.body = body;
-    }
+	public RemotingCommandType getType() {
+		if (rpcType == 0) {
+			return RemotingCommandType.REQUEST_COMMAND;
+		}
+		return RemotingCommandType.RESPONSE_COMMAND;
+	}
 
-    public int getRpcType() {
-        return rpcType;
-    }
+	public int getCode() {
+		return code;
+	}
 
-    public void setRpcType(int rpcType)
-    {
-        this.rpcType = rpcType;
-    }
+	public void setCode(int code) {
+		this.code = code;
+	}
 
-    @Override
-    public String toString() {
-        return "ClusterRemotingCommand{" +
-                "requestId=" + requestId +
-                ", code=" + code +
-                ", flag=" + flag +
-                ", rpcType=" + rpcType +
-                ", opaque=" + opaque +
-                ", extField=" + extField +
-                ", responseCode=" + responseCode +
-                '}';
-    }
+	public int getFlag() {
+		return flag;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ClusterRemotingCommand cmd = (ClusterRemotingCommand) o;
-        return code == cmd.code &&
-        		responseCode == cmd.responseCode &&
-                flag == cmd.flag &&
-                rpcType == cmd.rpcType &&
-                opaque == cmd.opaque &&
-                Objects.equals(extField,cmd.extField) &&
-                Arrays.equals(body,cmd.body);
-    }
+	public void setFlag(int flag) {
+		this.flag = flag;
+	}
+
+	public int getOpaque() {
+		return opaque;
+	}
+
+	public void setOpaque(int opaque) {
+		this.opaque = opaque;
+	}
+
+	public HashMap<String, String> getExtField() {
+		return extField;
+	}
+
+	public void setExtField(HashMap<String, String> extField) {
+		this.extField = extField;
+	}
+
+	public byte[] getBody() {
+		return body;
+	}
+
+	public void setBody(byte[] body) {
+		this.body = body;
+	}
+
+	public int getRpcType() {
+		return rpcType;
+	}
+
+	public void setRpcType(int rpcType) {
+		this.rpcType = rpcType;
+	}
+
+	@Override
+	public String toString() {
+		return "ClusterRemotingCommand{" + "requestId=" + requestId + ", code=" + code + ", flag=" + flag + ", rpcType="
+				+ rpcType + ", opaque=" + opaque + ", extField=" + extField + ", responseCode=" + responseCode + '}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ClusterRemotingCommand cmd = (ClusterRemotingCommand) o;
+		return code == cmd.code && responseCode == cmd.responseCode && flag == cmd.flag && rpcType == cmd.rpcType
+				&& opaque == cmd.opaque && Objects.equals(extField, cmd.extField) && Arrays.equals(body, cmd.body);
+	}
 
 	public int getResponseCode() {
 		return responseCode;

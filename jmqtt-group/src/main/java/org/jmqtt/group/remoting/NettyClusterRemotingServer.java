@@ -96,6 +96,7 @@ public class NettyClusterRemotingServer extends AbstractNettyCluster implements 
         this.resendService.start();
         try {
             ChannelFuture future = this.serverBootstrap.bind(clusterConfig.getGroupServerPort()).sync();
+            future.addListener((ChannelFutureListener) futured -> log.info("*****Inner Cluster server start complete!** "));
             log.info("Start cluster server success,port = {}", clusterConfig.getGroupServerPort());
         }catch (InterruptedException ex){
             log.error("Start cluster server failure.cause={}",ex);
