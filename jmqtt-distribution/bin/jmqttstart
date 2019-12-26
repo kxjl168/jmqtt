@@ -27,4 +27,4 @@ fi
 
 export JMQTT_HOME
 
-sh ${JMQTT_HOME}/bin/runbroker.sh org.jmqtt.broker.BrokerStartup $@
+sh  ${JMQTT_HOME}/bin/runbroker.sh org.jmqtt.broker.BrokerStartup $@
