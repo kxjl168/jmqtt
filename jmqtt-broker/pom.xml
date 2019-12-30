@@ -38,6 +38,11 @@
             <groupId>org.jmqtt</groupId>
             <artifactId>jmqtt-group</artifactId>
         </dependency>
+        
+          <dependency>
+            <groupId>org.jmqtt</groupId>
+            <artifactId>jmqtt-rule</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
