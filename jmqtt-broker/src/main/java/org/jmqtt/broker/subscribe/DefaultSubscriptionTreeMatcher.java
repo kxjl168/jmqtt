@@ -2,6 +2,7 @@ package org.jmqtt.broker.subscribe;
 
 import org.jmqtt.common.bean.Subscription;
 import org.jmqtt.common.log.LoggerName;
+import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

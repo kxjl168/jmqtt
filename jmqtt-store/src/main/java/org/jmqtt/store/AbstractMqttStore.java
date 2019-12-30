@@ -8,6 +8,8 @@ public abstract class AbstractMqttStore {
     protected OfflineMessageStore offlineMessageStore;
     protected SubscriptionStore subscriptionStore;
     protected SessionStore sessionStore;
+    
+    protected RuleMessageStore ruleMessageStore;
 
     public abstract void init() throws Exception;
 
@@ -36,6 +38,11 @@ public abstract class AbstractMqttStore {
     public WillMessageStore getWillMessageStore() {
         return willMessageStore;
     }
+    
+    public RuleMessageStore getRuleMessageStore() {
+        return ruleMessageStore;
+    }
+
 
 
 }

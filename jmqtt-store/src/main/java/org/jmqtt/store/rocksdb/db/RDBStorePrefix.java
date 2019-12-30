@@ -15,4 +15,6 @@ public interface RDBStorePrefix {
     String SUBSCRIPTION = "subscription:";
 
     String WILL_MESSAGE = "willMessage:";
+    
+    String RULE_MESSAGE = "ruleMessage:";
 }

@@ -2,9 +2,9 @@ package org.jmqtt.broker.client;
 
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
-import org.jmqtt.broker.dispatcher.MessageDispatcher;
 import org.jmqtt.common.bean.Message;
 import org.jmqtt.common.log.LoggerName;
+import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.remoting.netty.ChannelEventListener;
 import org.jmqtt.remoting.session.ConnectManager;
 import org.jmqtt.remoting.util.NettyUtil;

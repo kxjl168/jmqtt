@@ -1,8 +1,9 @@
 package org.jmqtt.broker.dispatcher;
 
 import org.jmqtt.broker.subscribe.DefaultSubscriptionTreeMatcher;
-import org.jmqtt.broker.subscribe.SubscriptionMatcher;
+import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.jmqtt.common.bean.Message;
+import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.store.FlowMessageStore;
 import org.jmqtt.store.OfflineMessageStore;
 import org.jmqtt.store.memory.DefaultFlowMessageStore;

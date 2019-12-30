@@ -24,6 +24,8 @@ public class RDBMqttStore extends AbstractMqttStore {
         this.offlineMessageStore = new RDBOfflineMessageStore(rdb);
         this.subscriptionStore = new RDBSubscriptionStore(rdb);
         this.sessionStore = new RDBSessionStore(rdb);
+        
+        this.ruleMessageStore=new RDBRuleMessageStore(rdb);
     }
 
     @Override

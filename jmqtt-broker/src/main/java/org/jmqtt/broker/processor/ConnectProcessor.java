@@ -8,7 +8,7 @@ import org.jmqtt.broker.BrokerController;
 import org.jmqtt.broker.acl.ConnectPermission;
 import org.jmqtt.broker.dispatcher.InnerMessageTransfer;
 import org.jmqtt.broker.recover.ReSendMessageService;
-import org.jmqtt.broker.subscribe.SubscriptionMatcher;
+import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.group.common.ClusterNodeManager;
 import org.jmqtt.group.common.InvokeCallback;
@@ -118,6 +118,9 @@ public class ConnectProcessor implements RequestProcessor {
                 returnCode = MqttConnectReturnCode.CONNECTION_ACCEPTED;
                 NettyUtil.setClientId(ctx.channel(),clientId);
                 ConnectManager.getInstance().putClient(clientId,clientSession);
+                
+                //zj
+                ConnectManager.getInstance().putUserName(clientId,userName);
             }
             MqttConnAckMessage ackMessage = MessageUtil.getConnectAckMessage(returnCode,sessionPresent);
             ctx.writeAndFlush(ackMessage);

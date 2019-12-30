@@ -7,11 +7,10 @@ import org.jmqtt.broker.acl.impl.DefaultConnectPermission;
 import org.jmqtt.broker.acl.impl.DefaultPubSubPermission;
 import org.jmqtt.broker.client.ClientLifeCycleHookService;
 import org.jmqtt.broker.dispatcher.DefaultDispatcherMessage;
-import org.jmqtt.broker.dispatcher.MessageDispatcher;
 import org.jmqtt.broker.processor.*;
 import org.jmqtt.broker.recover.ReSendMessageService;
 import org.jmqtt.broker.subscribe.DefaultSubscriptionTreeMatcher;
-import org.jmqtt.broker.subscribe.SubscriptionMatcher;
+import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.jmqtt.common.config.BrokerConfig;
 import org.jmqtt.common.config.ClusterConfig;
 import org.jmqtt.common.config.NettyConfig;
@@ -20,6 +19,7 @@ import org.jmqtt.common.helper.MixAll;
 import org.jmqtt.common.helper.RejectHandler;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
+import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.group.ClusterRemotingClient;
 import org.jmqtt.group.ClusterRemotingServer;
 import org.jmqtt.group.MessageTransfer;
@@ -34,6 +34,8 @@ import org.jmqtt.group.remoting.NettyClusterRemotingServer;
 import org.jmqtt.remoting.netty.ChannelEventListener;
 import org.jmqtt.remoting.netty.NettyRemotingServer;
 import org.jmqtt.remoting.netty.RequestProcessor;
+import org.jmqtt.rule.processor.RuleEngin;
+import org.jmqtt.rule.processor.impl.DefaultIOTRuleEngin;
 import org.jmqtt.store.*;
 import org.jmqtt.store.memory.DefaultMqttStore;
 import org.jmqtt.store.rocksdb.RDBMqttStore;
@@ -67,6 +69,9 @@ public class BrokerController {
     private FlowMessageStore flowMessageStore;
     private SubscriptionMatcher subscriptionMatcher;
     private WillMessageStore willMessageStore;
+    
+    private RuleMessageStore ruleMessageStore;
+    
     private RetainMessageStore retainMessageStore;
     private OfflineMessageStore offlineMessageStore;
     private SubscriptionStore subscriptionStore;
@@ -83,6 +88,9 @@ public class BrokerController {
     private ClusterOuterAPI clusterOuterAPI;
     private InnerMessageTransfer innerMessageTransfer;
     private ExecutorService clusterService;
+    
+    private RuleEngin ruleEngin;
+    private ExecutorService ruleExecutorService;
 
 
     public BrokerController(BrokerConfig brokerConfig, NettyConfig nettyConfig, StoreConfig storeConfig, ClusterConfig clusterConfig) {
@@ -117,6 +125,7 @@ public class BrokerController {
             this.offlineMessageStore = this.abstractMqttStore.getOfflineMessageStore();
             this.subscriptionStore = this.abstractMqttStore.getSubscriptionStore();
             this.sessionStore = this.abstractMqttStore.getSessionStore();
+            this.ruleMessageStore=this.abstractMqttStore.getRuleMessageStore();
         }
 
         {// permission pluggable
@@ -177,6 +186,16 @@ public class BrokerController {
                 new LinkedBlockingQueue<>(10000),
                 new ThreadFactoryImpl("ClusterThread"),
                 new RejectHandler("sub", 100000));
+        
+        this.ruleExecutorService = new ThreadPoolExecutor(coreThreadNum * 2,
+                coreThreadNum * 2,
+                60000,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(10000),
+                new ThreadFactoryImpl("RuleThread"),
+                new RejectHandler("sub", 100000));
+        //zj
+        this.ruleEngin=new DefaultIOTRuleEngin(coreThreadNum * 2, ruleMessageStore, subscriptionMatcher, messageDispatcher, ruleExecutorService);
 
     }
 
@@ -241,6 +260,8 @@ public class BrokerController {
         this.messageDispatcher.start();
         this.reSendMessageService.start();
         this.remotingServer.start();
+        
+        this.ruleEngin.start();
         log.info("JMqtt Server start success and version = {}", brokerConfig.getVersion());
     }
 
@@ -256,6 +277,8 @@ public class BrokerController {
         this.messageDispatcher.shutdown();
         this.reSendMessageService.shutdown();
         this.abstractMqttStore.shutdown();
+        
+        this.ruleEngin.shutdown();
     }
 
     public BrokerConfig getBrokerConfig() {
@@ -381,4 +404,14 @@ public class BrokerController {
     public ExecutorService getClusterService() {
         return clusterService;
     }
+
+
+	public RuleEngin getRuleEngin() {
+		return ruleEngin;
+	}
+
+
+	public void setRuleEngin(RuleEngin ruleEngin) {
+		this.ruleEngin = ruleEngin;
+	}
 }

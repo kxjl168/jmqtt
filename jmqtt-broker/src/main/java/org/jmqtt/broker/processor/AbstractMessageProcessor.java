@@ -1,10 +1,10 @@
 package org.jmqtt.broker.processor;
 
 import org.jmqtt.broker.dispatcher.InnerMessageTransfer;
-import org.jmqtt.broker.dispatcher.MessageDispatcher;
 import org.jmqtt.common.bean.Message;
 import org.jmqtt.common.bean.MessageHeader;
 import org.jmqtt.common.helper.SerializeHelper;
+import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.group.protocol.ClusterRemotingCommand;
 import org.jmqtt.group.protocol.ClusterRequestCode;
 import org.jmqtt.store.RetainMessageStore;

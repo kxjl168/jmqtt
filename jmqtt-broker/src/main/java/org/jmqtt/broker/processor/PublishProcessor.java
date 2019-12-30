@@ -17,6 +17,7 @@ import org.jmqtt.remoting.netty.RequestProcessor;
 import org.jmqtt.remoting.session.ConnectManager;
 import org.jmqtt.remoting.util.MessageUtil;
 import org.jmqtt.remoting.util.NettyUtil;
+import org.jmqtt.rule.processor.RuleEngin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +31,15 @@ public class PublishProcessor extends AbstractMessageProcessor implements Reques
 
 	private PubSubPermission pubSubPermission;
 
+	private RuleEngin ruleEngin;
+
 	public PublishProcessor(BrokerController controller) {
 		super(controller.getMessageDispatcher(), controller.getRetainMessageStore(),
 				controller.getInnerMessageTransfer());
 		this.flowMessageStore = controller.getFlowMessageStore();
 		this.pubSubPermission = controller.getPubSubPermission();
+
+		this.ruleEngin = controller.getRuleEngin();
 	}
 
 	@Override
@@ -59,6 +64,7 @@ public class PublishProcessor extends AbstractMessageProcessor implements Reques
 			headers.put(MessageHeader.QOS, publishMessage.fixedHeader().qosLevel().value());
 			headers.put(MessageHeader.RETAIN, publishMessage.fixedHeader().isRetain());
 			headers.put(MessageHeader.DUP, publishMessage.fixedHeader().isDup());
+
 			innerMsg.setHeaders(headers);
 			innerMsg.setMsgId(publishMessage.variableHeader().packetId());
 			switch (qos) {
@@ -74,11 +80,29 @@ public class PublishProcessor extends AbstractMessageProcessor implements Reques
 			default:
 				log.warn("[PubMessage] -> Wrong mqtt message,clientId={}", clientId);
 			}
+
+			processRule(ctx, innerMsg);
+
 		} catch (Throwable tr) {
 			log.warn("[PubMessage] -> Solve mqtt pub message exception:{}", tr);
 		} finally {
 			ReferenceCountUtil.release(mqttMessage.payload());
 		}
+	}
+
+	/**
+	 * 处理规则引擎数据过滤转发等
+	 * 
+	 * @param ctx
+	 * @param innerMsg
+	 * @author zj
+	 * @date 2019年12月27日
+	 */
+	private void processRule(ChannelHandlerContext ctx, Message innerMsg) {
+		log.info("[PubMessage] -> Process processRule message,clientId={}", innerMsg.getClientId());
+
+		ruleEngin.filter(innerMsg);
+
 	}
 
 	private void processQos2(ChannelHandlerContext ctx, Message innerMsg) {
@@ -93,14 +117,12 @@ public class PublishProcessor extends AbstractMessageProcessor implements Reques
 
 	private void processQos1(ChannelHandlerContext ctx, Message innerMsg) {
 		//
-		
-		
+
 		log.info("[PubMessage] -> Process qos1 message,clientId={}", innerMsg.getClientId());
 		MqttPubAckMessage pubAckMessage = MessageUtil.getPubAckMessage(innerMsg.getMsgId());
 		ctx.writeAndFlush(pubAckMessage);
-		
+
 		processMessage(innerMsg);
-	
 
 	}
 

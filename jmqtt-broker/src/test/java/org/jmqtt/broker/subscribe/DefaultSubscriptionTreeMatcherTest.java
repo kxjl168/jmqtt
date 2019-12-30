@@ -1,6 +1,7 @@
 package org.jmqtt.broker.subscribe;
 
 import org.jmqtt.common.bean.Subscription;
+import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

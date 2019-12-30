@@ -7,7 +7,7 @@ import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.jmqtt.broker.BrokerController;
 import org.jmqtt.broker.acl.PubSubPermission;
-import org.jmqtt.broker.subscribe.SubscriptionMatcher;
+import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.jmqtt.common.bean.*;
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.remoting.netty.RequestProcessor;
