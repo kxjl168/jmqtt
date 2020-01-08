@@ -1,0 +1,35 @@
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="${basepackageName}.pojo.${modelClass}">
+	select
+	<include refid="Base_Column_List" />
+	from ${tableName} c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = ${r'#'}{id}
+	</if>
+	
+		<#list queryFields as field>
+		
+		<if test=" ${field.id} !=null and ${field.id} !='' ">
+		and c.${field.sqlcolname} like concat ('%', ${r'#'}{${field.id}},'%')
+	</if>
+		
+			
+				</#list>
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="${basepackageName}.pojo.${modelClass}">
+	delete from ${tableName}
+
+	where id = ${r'#'}{id,jdbcType=VARCHAR}
+
+</delete>
+  

@@ -2,6 +2,7 @@ package org.jmqtt.common.helper;
 
 import com.alibaba.fastjson.JSONObject;
 import org.jmqtt.common.log.LoggerName;
+import org.jmqtt.group.protocol.node.ServerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,12 +11,17 @@ import java.util.List;
 
 public class SerializeHelper {
 
+	/*fastjons 解析快，bean 需要有默认无参构造函数！*/
+	
     private static final Logger log = LoggerFactory.getLogger(LoggerName.OTHER);
 
     public static <T> byte[] serialize(T obj){
         if(obj instanceof String){
             return ((String) obj).getBytes();
         }
+        
+        
+        
         return JSONObject.toJSONBytes(obj);
     }
 

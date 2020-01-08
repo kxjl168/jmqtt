@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.base.dao.SysOperLogMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.base.pojo.SysOperLog">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="login_name" jdbcType="VARCHAR" property="loginName" />
+    <result column="display_name" jdbcType="VARCHAR" property="displayName" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="oper_type" jdbcType="VARCHAR" property="operType" />
+    <result column="oper_desc" jdbcType="VARCHAR" property="operDesc" />
+    <result column="fun_name" jdbcType="VARCHAR" property="funName" />
+    <result column="bean_class_name" jdbcType="VARCHAR" property="beanClassName" />
+    <result column="oper_time" jdbcType="TIMESTAMP" property="operTime" />
+    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="data" jdbcType="VARCHAR" property="data" />
+    <result column="nickName" jdbcType="VARCHAR" property="nickName" />
+    
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, login_name, display_name, ip, oper_type, oper_desc, fun_name, bean_class_name, 
+    oper_time, delete_flag, data
+  </sql>
+  
+  
+  
+  
+     <select id="selectList" resultMap="BaseResultMap" parameterType="com.ztgm.base.pojo.SysOperLog" >
+    select 
+  r.* ,u.nickName
+    from sys_operlog r
+    left join manager u on r.user_id=u.id
+    where 1=1
+    <if test= " userId !=null and userId !='' ">
+      and r.user_id like  concat('%',#{userId},'%')
+    </if>
+    <if test= " displayName !=null and displayName !='' ">
+      and u.NICKNAME like  concat('%',#{displayName},'%')
+    </if>
+    <if test= " loginName !=null and loginName !='' ">
+      and r.login_name like  concat('%',#{loginName},'%') 
+    </if>
+   
+     <if test= " ip !=null and ip !='' ">
+      and r.ip like   concat('%',#{ip},'%')
+    </if>
+     <if test= " operType !=null and operType !='' ">
+      and r.oper_type like  concat('%',#{operType},'%')
+    </if>
+    
+    order by r.oper_time desc
+  
+  </select>
+  
+
+  
+    <delete id="delete" parameterType="com.ztgm.base.pojo.SysOperLog" >
+    update  sys_operlog set delete_flag=1
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_operlog
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from sys_operlog
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.base.pojo.SysOperLog">
+    insert into sys_operlog (id, user_id, login_name, 
+      display_name, ip, oper_type, 
+      oper_desc, fun_name, bean_class_name, 
+      oper_time, delete_flag, data
+      )
+    values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{loginName,jdbcType=VARCHAR}, 
+      #{displayName,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{operType,jdbcType=VARCHAR}, 
+      #{operDesc,jdbcType=VARCHAR}, #{funName,jdbcType=VARCHAR}, #{beanClassName,jdbcType=VARCHAR}, 
+      #{operTime,jdbcType=TIMESTAMP}, #{deleteFlag,jdbcType=INTEGER}, #{data,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.base.pojo.SysOperLog">
+    insert into sys_operlog
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="loginName != null">
+        login_name,
+      </if>
+      <if test="displayName != null">
+        display_name,
+      </if>
+      <if test="ip != null">
+        ip,
+      </if>
+      <if test="operType != null">
+        oper_type,
+      </if>
+      <if test="operDesc != null">
+        oper_desc,
+      </if>
+      <if test="funName != null">
+        fun_name,
+      </if>
+      <if test="beanClassName != null">
+        bean_class_name,
+      </if>
+      <if test="operTime != null">
+        oper_time,
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag,
+      </if>
+      <if test="data != null">
+        data,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null">
+        #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="displayName != null">
+        #{displayName,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null">
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="operType != null">
+        #{operType,jdbcType=VARCHAR},
+      </if>
+      <if test="operDesc != null">
+        #{operDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="funName != null">
+        #{funName,jdbcType=VARCHAR},
+      </if>
+      <if test="beanClassName != null">
+        #{beanClassName,jdbcType=VARCHAR},
+      </if>
+      <if test="operTime != null">
+        #{operTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null">
+        #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="data != null">
+        #{data,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.base.pojo.SysOperLog">
+    update sys_operlog
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null">
+        login_name = #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="displayName != null">
+        display_name = #{displayName,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null">
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="operType != null">
+        oper_type = #{operType,jdbcType=VARCHAR},
+      </if>
+      <if test="operDesc != null">
+        oper_desc = #{operDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="funName != null">
+        fun_name = #{funName,jdbcType=VARCHAR},
+      </if>
+      <if test="beanClassName != null">
+        bean_class_name = #{beanClassName,jdbcType=VARCHAR},
+      </if>
+      <if test="operTime != null">
+        oper_time = #{operTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="data != null">
+        data = #{data,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.base.pojo.SysOperLog">
+    update sys_operlog
+    set user_id = #{userId,jdbcType=VARCHAR},
+      login_name = #{loginName,jdbcType=VARCHAR},
+      display_name = #{displayName,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      oper_type = #{operType,jdbcType=VARCHAR},
+      oper_desc = #{operDesc,jdbcType=VARCHAR},
+      fun_name = #{funName,jdbcType=VARCHAR},
+      bean_class_name = #{beanClassName,jdbcType=VARCHAR},
+      oper_time = #{operTime,jdbcType=TIMESTAMP},
+      delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      data = #{data,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

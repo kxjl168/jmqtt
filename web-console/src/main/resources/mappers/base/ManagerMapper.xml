@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ztgm.base.dao.ManagerMapper" >
+  <resultMap id="BaseResultMap" type="com.ztgm.base.pojo.Manager" >
+    <id column="ID" property="id" jdbcType="VARCHAR" />
+    <result column="USERNAME" property="username" jdbcType="VARCHAR" />
+    <result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+    <result column="TELEPHONE" property="telephone" jdbcType="VARCHAR" />
+    <result column="TELEPHONE_VERIFIED" property="telephoneVerified" jdbcType="INTEGER" />
+    <result column="TOKEN" property="token" jdbcType="VARCHAR" />
+    <result column="TIME" property="time" jdbcType="VARCHAR" />
+    <result column="VERIFY_KEY" property="verifyKey" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATER" property="creater" jdbcType="VARCHAR" />
+     <result column="nickname" property="nickname" jdbcType="VARCHAR" />
+    
+     <result column="userRole" property="userRole" jdbcType="VARCHAR" />
+     
+     
+     <result column="oauthUserId" property="oauthUserId" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.ztgm.base.pojo.Manager" extends="BaseResultMap" >
+    <result column="HEAD_IMG" property="headImg" jdbcType="LONGVARBINARY" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID id, USERNAME username, PASSWORD password, TELEPHONE telephone, TELEPHONE_VERIFIED telephone_verified, TOKEN token, TIME time, VERIFY_KEY verify_key, CREATE_DATE create_date,
+    CREATER creater,nickname,oauthUserId
+  </sql>
+  <sql id="Blob_Column_List" >
+    HEAD_IMG head_img
+  </sql>
+  
+  
+  
+  <select id="getLoginUser" resultMap="BaseResultMap">
+
+        select
+        <include refid="Base_Column_List"/>
+        from manager
+
+        where 1=1 
+
+        and (
+        TELEPHONE = #{key}
+
+    
+        or username =
+        #{key,jdbcType=VARCHAR}
+
+)
+
+    </select>
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from manager
+    where ID = #{id,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectManagerByNamePwd" resultMap="BaseResultMap"  >
+    select
+    <include refid="Base_Column_List" />
+    from manager
+    where USERNAME=#{name,jdbcType=VARCHAR} and PASSWORD=#{password,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectManagerByToken" resultMap="BaseResultMap"  >
+    select
+    <include refid="Base_Column_List" />
+    from manager
+    where token=#{token,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectManagerByPhone" resultMap="BaseResultMap"  >
+    select
+    <include refid="Base_Column_List" />
+    from manager
+    where telephone=#{telephone,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectManagerByOauthId" resultMap="BaseResultMap"  >
+    select
+    <include refid="Base_Column_List" />
+    from manager
+    where oauthUserId=#{oauthUserId,jdbcType=VARCHAR}
+    or  telephone=#{telephone,jdbcType=VARCHAR}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from manager
+    where ID = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.base.pojo.Manager" >
+    insert into manager (ID, USERNAME, PASSWORD, 
+      TELEPHONE, TELEPHONE_VERIFIED, TOKEN, 
+      TIME, VERIFY_KEY, CREATE_DATE, 
+      CREATER, HEAD_IMG,nickname)
+    values (#{id,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{telephone,jdbcType=VARCHAR}, #{telephoneVerified,jdbcType=INTEGER}, #{token,jdbcType=VARCHAR}, 
+      #{time,jdbcType=VARCHAR}, #{verifyKey,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{creater,jdbcType=VARCHAR}, #{headImg,jdbcType=LONGVARBINARY},#{nickname})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.base.pojo.Manager" >
+    insert into manager
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="username != null" >
+        USERNAME,
+      </if>
+       <if test="nickname != null" >
+        nickname,
+      </if>
+      <if test="password != null" >
+        PASSWORD,
+      </if>
+      <if test="telephone != null" >
+        TELEPHONE,
+      </if>
+      <if test="telephoneVerified != null" >
+        TELEPHONE_VERIFIED,
+      </if>
+      <if test="token != null" >
+        TOKEN,
+      </if>
+      <if test="time != null" >
+        TIME,
+      </if>
+      <if test="verifyKey != null" >
+        VERIFY_KEY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="creater != null" >
+        CREATER,
+      </if>
+      <if test="headImg != null" >
+        HEAD_IMG,
+      </if>
+      <if test="oauthUserId != null" >
+        oauthUserId,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+       <if test="nickname != null" >
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null" >
+        #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="telephoneVerified != null" >
+        #{telephoneVerified,jdbcType=INTEGER},
+      </if>
+      <if test="token != null" >
+        #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=VARCHAR},
+      </if>
+      <if test="verifyKey != null" >
+        #{verifyKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="creater != null" >
+        #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="headImg != null" >
+        #{headImg,jdbcType=LONGVARBINARY},
+      </if>
+        <if test="oauthUserId != null" >
+           #{oauthUserId,jdbcType=VARCHAR},
+       
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.base.pojo.Manager" >
+    update manager
+    <set >
+      <if test="username != null and username != ''" >
+        USERNAME = #{username,jdbcType=VARCHAR},
+      </if>
+       <if test="nickname != null and nickname != ''" >
+        nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      
+      <if test="password != null and password != ''" >
+        PASSWORD = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null and telephone != ''" >
+        TELEPHONE = #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="telephoneVerified != null and telephoneVerified != ''" >
+        TELEPHONE_VERIFIED = #{telephoneVerified,jdbcType=INTEGER},
+      </if>
+      <if test="token != null and token != ''" >
+        TOKEN = #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null and time != ''" >
+        TIME = #{time,jdbcType=VARCHAR},
+      </if>
+      <if test="verifyKey != null and verifyKey != ''" >
+        VERIFY_KEY = #{verifyKey,jdbcType=VARCHAR},
+      </if>
+    
+      <if test="creater != null and creater != ''" >
+        CREATER = #{creater,jdbcType=VARCHAR},
+      </if>
+      <if test="headImg != null and headImg != ''" >
+        HEAD_IMG = #{headImg,jdbcType=LONGVARBINARY},
+      </if>
+       <if test="headImg != null and headImg != ''" >
+        HEAD_IMG = #{headImg,jdbcType=LONGVARBINARY},
+      </if>
+             <if test="oauthUserId != null" >
+         oauthUserId=  #{oauthUserId,jdbcType=VARCHAR},
+       
+      </if>
+    </set>
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.ztgm.base.pojo.Manager" >
+    update manager
+    set USERNAME = #{username,jdbcType=VARCHAR},
+      PASSWORD = #{password,jdbcType=VARCHAR},
+      TELEPHONE = #{telephone,jdbcType=VARCHAR},
+      TELEPHONE_VERIFIED = #{telephoneVerified,jdbcType=INTEGER},
+      TOKEN = #{token,jdbcType=VARCHAR},
+      TIME = #{time,jdbcType=VARCHAR},
+      VERIFY_KEY = #{verifyKey,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATER = #{creater,jdbcType=VARCHAR},
+      HEAD_IMG = #{headImg,jdbcType=LONGVARBINARY}
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.base.pojo.Manager" >
+    update manager
+    set USERNAME = #{username,jdbcType=VARCHAR},
+      PASSWORD = #{password,jdbcType=VARCHAR},
+      TELEPHONE = #{telephone,jdbcType=VARCHAR},
+      TELEPHONE_VERIFIED = #{telephoneVerified,jdbcType=INTEGER},
+      TOKEN = #{token,jdbcType=VARCHAR},
+      TIME = #{time,jdbcType=VARCHAR},
+      VERIFY_KEY = #{verifyKey,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATER = #{creater,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=VARCHAR}
+  </update>
+
+
+  <select id="selectManagerByManager" resultMap="ResultMapWithBLOBs" parameterType="com.ztgm.base.pojo.Manager" >
+   select group_concat( r.name,'') userRole, nickname,
+      t1.ID id, USERNAME username, PASSWORD password, TELEPHONE telephone, TELEPHONE_VERIFIED telephone_verified, TOKEN token, TIME time, VERIFY_KEY verify_key, CREATE_DATE create_date,
+      CREATER creater,HEAD_IMG head_img
+    from manager t1
+left join sys_user_role ur on t1.ID=ur.sys_user_id
+left join sys_role r on r.id=ur.sys_role_id
+    where 1=1
+    <if test="id != null" >
+      and ID= #{id,jdbcType=VARCHAR}
+    </if>
+    <if test="username != null" >
+      and USERNAME like concat('%',#{username},'%') 
+    </if>
+    <if test="password != null" >
+      and PASSWORD = #{password,jdbcType=VARCHAR}
+    </if>
+    <if test="telephone != null" >
+      and TELEPHONE = #{telephone,jdbcType=VARCHAR}
+    </if>
+    <if test="telephoneVerified != null" >
+      and TELEPHONE_VERIFIED = #{telephoneVerified,jdbcType=INTEGER}
+    </if>
+    <if test="token != null" >
+      and TOKEN = #{token,jdbcType=VARCHAR}
+    </if>
+    <if test="time != null" >
+      and TIME = #{time,jdbcType=VARCHAR}
+    </if>
+    <if test="verifyKey != null" >
+      and VERIFY_KEY = #{verifyKey,jdbcType=VARCHAR}
+    </if>
+    <if test="createDate != null" >
+      and CREATE_DATE = #{createDate,jdbcType=TIMESTAMP}
+    </if>
+    <if test="creater != null" >
+      and CREATER = #{creater,jdbcType=VARCHAR}
+    </if>
+    <if test="headImg != null" >
+      and HEAD_IMG = #{headImg,jdbcType=LONGVARBINARY}
+    </if>
+           <if test="oauthUserId != null" >
+        and oauthUserId=  #{oauthUserId,jdbcType=VARCHAR}
+       
+      </if>
+    group by t1.id
+  </select>
+
+  <!--查询系统中现有的角色为系统管理员的用户信息-->
+  <select id="getAdminManagers" resultType="com.ztgm.base.pojo.Manager">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM manager
+    WHERE id IN (
+    select ur.`sys_user_id` from `sys_user_role` ur where ur.`id` in (
+    SELECT id FROM sys_role WHERE 1=1 AND name ='系统管理员' AND available=1
+    )
+    )
+  </select>
+
+
+  <select id="selectManagerList" resultType="java.util.HashMap"   >
+    select
+      t1.ID id, USERNAME username, PASSWORD password, TELEPHONE telephone, TELEPHONE_VERIFIED telephone_verified, TOKEN token, TIME time, VERIFY_KEY verify_key, CREATE_DATE create_date,
+      CREATER creater,HEAD_IMG head_img,oauthUserId
+    from manager t1
+    where 1=1
+    <if test="id != null" >
+      and t1.ID= #{id,jdbcType=VARCHAR}
+    </if>
+    <if test="username != null" >
+      and USERNAME = #{username,jdbcType=VARCHAR}
+    </if>
+    <if test="password != null" >
+      and PASSWORD = #{password,jdbcType=VARCHAR}
+    </if>
+    <if test="telephone != null  and telephone != ''" >
+      and TELEPHONE = #{telephone,jdbcType=VARCHAR}
+    </if>
+    <if test="telephoneVerified != null" >
+      and TELEPHONE_VERIFIED = #{telephoneVerified,jdbcType=INTEGER}
+    </if>
+    <if test="token != null" >
+      and TOKEN = #{token,jdbcType=VARCHAR}
+    </if>
+    <if test="time != null" >
+      and TIME = #{time,jdbcType=VARCHAR}
+    </if>
+    <if test="verifyKey != null" >
+      and VERIFY_KEY = #{verifyKey,jdbcType=VARCHAR}
+    </if>
+    <if test="createDate != null" >
+      and CREATE_DATE = #{createDate,jdbcType=TIMESTAMP}
+    </if>
+    <if test="creater != null" >
+      and CREATER = #{creater,jdbcType=VARCHAR}
+    </if>
+    <if test="headImg != null" >
+      and HEAD_IMG = #{headImg,jdbcType=LONGVARBINARY}
+    </if>
+         <if test="oauthUserId != null" >
+        and oauthUserId=  #{oauthUserId,jdbcType=VARCHAR}
+       
+      </if>
+  </select>
+  
+  
+     
+      <select id="hasNickName" parameterType="com.ztgm.base.pojo.Manager"  resultType="java.lang.Integer">
+    select 
+   count(*)
+    from manager
+    where 1=1   
+ <if test="nickname != null and nickname !='' " >
+      and NICKNAME = #{nickname}
+    </if>
+<if test="id !=null and id !='' ">
+			AND id!=#{id } 
+		</if>
+	
+  </select>
+  
+    
+
+
+  <select id="selectManagerByMap" resultType="java.util.HashMap" parameterType="java.util.Map" >
+   
+select group_concat( r.name,'') roleName, nickname,
+      t1.ID id, USERNAME username, PASSWORD password, TELEPHONE telephone, TELEPHONE_VERIFIED telephone_verified, TOKEN token, TIME time, VERIFY_KEY verify_key, CREATE_DATE create_date,
+      CREATER creater,HEAD_IMG head_img
+    from manager t1
+left join sys_user_role ur on t1.ID=ur.sys_user_id
+left join sys_role r on r.id=ur.sys_role_id
+    where 1=1
+    <if test="id != null" >
+      and t1.ID= #{id,jdbcType=VARCHAR}
+    </if>
+    <if test="username != null" >
+      and USERNAME = #{username,jdbcType=VARCHAR}
+    </if>
+    <if test="password != null" >
+      and PASSWORD = #{password,jdbcType=VARCHAR}
+    </if>
+    <if test="telephone != null  and telephone != ''" >
+      and TELEPHONE = #{telephone,jdbcType=VARCHAR}
+    </if>
+    <if test="telephoneVerified != null" >
+      and TELEPHONE_VERIFIED = #{telephoneVerified,jdbcType=INTEGER}
+    </if>
+    <if test="token != null" >
+      and TOKEN = #{token,jdbcType=VARCHAR}
+    </if>
+    <if test="time != null" >
+      and TIME = #{time,jdbcType=VARCHAR}
+    </if>
+    <if test="verifyKey != null" >
+      and VERIFY_KEY = #{verifyKey,jdbcType=VARCHAR}
+    </if>
+    <if test="createDate != null" >
+      and CREATE_DATE = #{createDate,jdbcType=TIMESTAMP}
+    </if>
+    <if test="creater != null" >
+      and CREATER = #{creater,jdbcType=VARCHAR}
+    </if>
+    <if test="headImg != null" >
+      and HEAD_IMG = #{headImg,jdbcType=LONGVARBINARY}
+    </if>
+         <if test="oauthUserId != null" >
+        and oauthUserId=  #{oauthUserId,jdbcType=VARCHAR}
+       
+      </if>
+
+    group by t1.id
+  </select>
+
+
+</mapper>

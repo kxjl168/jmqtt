@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.mqtt.dao.MqttRuleMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.mqtt.pojo.MqttRule">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="productKey" jdbcType="VARCHAR" property="productKey" />
+    <result column="ruleDesc" jdbcType="VARCHAR" property="ruleDesc" />
+    <result column="select" jdbcType="VARCHAR" property="select" />
+    <result column="topic" jdbcType="VARCHAR" property="topic" />
+    <result column="CREATE_DATE" jdbcType="VARCHAR" property="CREATE_DATE" />
+    <result column="utcModified" jdbcType="VARCHAR" property="utcModified" />
+    <result column="wheredata" jdbcType="VARCHAR" property="wheredata" />
+    <result column="rtype" jdbcType="VARCHAR" property="rtype" />
+    <result column="configuration" jdbcType="VARCHAR" property="configuration" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, productKey, ruleDesc, select, topic, CREATE_DATE, utcModified, wheredata, 
+    rtype, configuration
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from mqtt_rule
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from mqtt_rule
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.mqtt.pojo.MqttRule">
+    insert into mqtt_rule (id, name, productKey, 
+      ruleDesc, select, topic, 
+      CREATE_DATE, utcModified, wheredata, 
+      rtype, configuration)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{productKey,jdbcType=VARCHAR}, 
+      #{ruleDesc,jdbcType=VARCHAR}, #{select,jdbcType=VARCHAR}, #{topic,jdbcType=VARCHAR}, 
+      #{CREATE_DATE,jdbcType=VARCHAR}, #{utcModified,jdbcType=VARCHAR}, #{wheredata,jdbcType=VARCHAR}, 
+      #{rtype,jdbcType=VARCHAR}, #{configuration,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.mqtt.pojo.MqttRule">
+    insert into mqtt_rule
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="productKey != null">
+        productKey,
+      </if>
+      <if test="ruleDesc != null">
+        ruleDesc,
+      </if>
+      <if test="select != null">
+        select,
+      </if>
+      <if test="topic != null">
+        topic,
+      </if>
+      <if test="CREATE_DATE != null">
+        CREATE_DATE,
+      </if>
+      <if test="utcModified != null">
+        utcModified,
+      </if>
+      <if test="wheredata != null">
+        wheredata,
+      </if>
+      <if test="rtype != null">
+        rtype,
+      </if>
+      <if test="configuration != null">
+        configuration,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="productKey != null">
+        #{productKey,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null">
+        #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="select != null">
+        #{select,jdbcType=VARCHAR},
+      </if>
+      <if test="topic != null">
+        #{topic,jdbcType=VARCHAR},
+      </if>
+      <if test="CREATE_DATE != null">
+        #{CREATE_DATE,jdbcType=VARCHAR},
+      </if>
+      <if test="utcModified != null">
+        #{utcModified,jdbcType=VARCHAR},
+      </if>
+      <if test="wheredata != null">
+        #{wheredata,jdbcType=VARCHAR},
+      </if>
+      <if test="rtype != null">
+        #{rtype,jdbcType=VARCHAR},
+      </if>
+      <if test="configuration != null">
+        #{configuration,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.mqtt.pojo.MqttRule">
+    update mqtt_rule
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="productKey != null">
+        productKey = #{productKey,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null">
+        ruleDesc = #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="select != null">
+        select = #{select,jdbcType=VARCHAR},
+      </if>
+      <if test="topic != null">
+        topic = #{topic,jdbcType=VARCHAR},
+      </if>
+      <if test="CREATE_DATE != null">
+        CREATE_DATE = #{CREATE_DATE,jdbcType=VARCHAR},
+      </if>
+      <if test="utcModified != null">
+        utcModified = #{utcModified,jdbcType=VARCHAR},
+      </if>
+      <if test="wheredata != null">
+        wheredata = #{wheredata,jdbcType=VARCHAR},
+      </if>
+      <if test="rtype != null">
+        rtype = #{rtype,jdbcType=VARCHAR},
+      </if>
+      <if test="configuration != null">
+        configuration = #{configuration,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.mqtt.pojo.MqttRule">
+    update mqtt_rule
+    set name = #{name,jdbcType=VARCHAR},
+      productKey = #{productKey,jdbcType=VARCHAR},
+      ruleDesc = #{ruleDesc,jdbcType=VARCHAR},
+      select = #{select,jdbcType=VARCHAR},
+      topic = #{topic,jdbcType=VARCHAR},
+      CREATE_DATE = #{CREATE_DATE,jdbcType=VARCHAR},
+      utcModified = #{utcModified,jdbcType=VARCHAR},
+      wheredata = #{wheredata,jdbcType=VARCHAR},
+      rtype = #{rtype,jdbcType=VARCHAR},
+      configuration = #{configuration,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="com.ztgm.mqtt.pojo.MqttRule">
+	select
+	<include refid="Base_Column_List" />
+	from mqtt_rule c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = #{id}
+	</if>
+	
+		
+		<if test=" name !=null and name !='' ">
+		and c.name like concat ('%', #{name},'%')
+	</if>
+		
+			
+		
+		<if test=" productKey !=null and productKey !='' ">
+		and c.productKey = #{productKey}
+	</if>
+		
+			
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="com.ztgm.mqtt.pojo.MqttRule">
+	delete from mqtt_rule
+
+	where id = #{id,jdbcType=VARCHAR}
+
+</delete>
+
+</mapper>

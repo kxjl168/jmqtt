@@ -32,7 +32,7 @@ public interface RuleEngin {
 	 * @author zj
 	 * @date 2019年12月30日
 	 */
-	boolean refreshRules();
+	boolean refreshRules(String productKey);
 
 	
 	void start();

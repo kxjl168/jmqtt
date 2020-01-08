@@ -14,7 +14,9 @@ import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.jmqtt.common.config.BrokerConfig;
 import org.jmqtt.common.config.ClusterConfig;
 import org.jmqtt.common.config.NettyConfig;
+import org.jmqtt.common.config.RuleConfig;
 import org.jmqtt.common.config.StoreConfig;
+import org.jmqtt.common.config.WebConfig;
 import org.jmqtt.common.helper.MixAll;
 import org.jmqtt.common.helper.RejectHandler;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
@@ -39,6 +41,8 @@ import org.jmqtt.rule.processor.impl.DefaultIOTRuleEngin;
 import org.jmqtt.store.*;
 import org.jmqtt.store.memory.DefaultMqttStore;
 import org.jmqtt.store.rocksdb.RDBMqttStore;
+import org.jmqtt.web.remoting.DefaultWebNettyRemotingServer;
+import org.jmqtt.web.remoting.WebRemotingServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +59,10 @@ public class BrokerController {
     private NettyConfig nettyConfig;
     private StoreConfig storeConfig;
     private ClusterConfig clusterConfig;
+    private WebConfig webConfig;
+    private RuleConfig ruleConfig;
+    
+    
     private ExecutorService connectExecutor;
     private ExecutorService pubExecutor;
     private ExecutorService subExecutor;
@@ -91,13 +99,18 @@ public class BrokerController {
     
     private RuleEngin ruleEngin;
     private ExecutorService ruleExecutorService;
+    
+    private WebRemotingServer webRemotingServer;
+    private ExecutorService webExecutorService;
+    
 
-
-    public BrokerController(BrokerConfig brokerConfig, NettyConfig nettyConfig, StoreConfig storeConfig, ClusterConfig clusterConfig) {
+    public BrokerController(BrokerConfig brokerConfig, NettyConfig nettyConfig, StoreConfig storeConfig, ClusterConfig clusterConfig,WebConfig webConfig,RuleConfig ruleConfig) {
         this.brokerConfig = brokerConfig;
         this.nettyConfig = nettyConfig;
         this.storeConfig = storeConfig;
         this.clusterConfig = clusterConfig;
+        this.webConfig=webConfig;
+        this.ruleConfig=ruleConfig;
 
         this.connectQueue = new LinkedBlockingQueue(100000);
         this.pubQueue = new LinkedBlockingQueue(100000);
@@ -195,8 +208,18 @@ public class BrokerController {
                 new ThreadFactoryImpl("RuleThread"),
                 new RejectHandler("sub", 100000));
         //zj
-        this.ruleEngin=new DefaultIOTRuleEngin(coreThreadNum * 2, ruleMessageStore, subscriptionMatcher, messageDispatcher, ruleExecutorService);
+        this.ruleEngin=new DefaultIOTRuleEngin(coreThreadNum * 2, ruleMessageStore, subscriptionMatcher, messageDispatcher, ruleExecutorService,ruleConfig);
 
+        this.webExecutorService = new ThreadPoolExecutor(coreThreadNum * 2,
+                coreThreadNum * 2,
+                60000,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(10000),
+                new ThreadFactoryImpl("WebThread"),
+                new RejectHandler("sub", 100000));
+        //zj
+        this.webRemotingServer=new DefaultWebNettyRemotingServer(ruleEngin, webConfig, brokerConfig, nettyConfig, storeConfig, clusterConfig, webExecutorService);
+        
     }
 
 
@@ -206,6 +229,9 @@ public class BrokerController {
         MixAll.printProperties(log, nettyConfig);
         MixAll.printProperties(log, storeConfig);
         MixAll.printProperties(log, clusterConfig);
+        MixAll.printProperties(log, ruleConfig);
+        
+        
 
         {//init and register mqtt remoting processor
             RequestProcessor connectProcessor = new ConnectProcessor(this);
@@ -262,6 +288,7 @@ public class BrokerController {
         this.remotingServer.start();
         
         this.ruleEngin.start();
+        this.webRemotingServer.start();
         log.info("JMqtt Server start success and version = {}", brokerConfig.getVersion());
     }
 
@@ -279,6 +306,7 @@ public class BrokerController {
         this.abstractMqttStore.shutdown();
         
         this.ruleEngin.shutdown();
+        this.webRemotingServer.shutdown();
     }
 
     public BrokerConfig getBrokerConfig() {

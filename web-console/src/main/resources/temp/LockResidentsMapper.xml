@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.base.dao.LockResidentsMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.base.pojo.LockResidents">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="telephone" jdbcType="VARCHAR" property="telephone" />
+    <result column="gender" jdbcType="VARCHAR" property="gender" />
+    <result column="nationality" jdbcType="VARCHAR" property="nationality" />
+    <result column="birth" jdbcType="VARCHAR" property="birth" />
+    <result column="id_crad" jdbcType="VARCHAR" property="idCrad" />
+    <result column="permanent_address" jdbcType="VARCHAR" property="permanentAddress" />
+    <result column="id_crad_address" jdbcType="VARCHAR" property="idCradAddress" />
+    <result column="id_crad_starttime" jdbcType="VARCHAR" property="idCradStarttime" />
+    <result column="id_crad_endtime" jdbcType="VARCHAR" property="idCradEndtime" />
+    <result column="ctime22" jdbcType="VARCHAR" property="ctime22" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, telephone, gender, nationality, birth, id_crad, permanent_address, id_crad_address, 
+    id_crad_starttime, id_crad_endtime, ctime22
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from lock_residents
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from lock_residents
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.base.pojo.LockResidents">
+    insert into lock_residents (id, name, telephone, 
+      gender, nationality, birth, 
+      id_crad, permanent_address, id_crad_address, 
+      id_crad_starttime, id_crad_endtime, ctime22
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, 
+      #{gender,jdbcType=VARCHAR}, #{nationality,jdbcType=VARCHAR}, #{birth,jdbcType=VARCHAR}, 
+      #{idCrad,jdbcType=VARCHAR}, #{permanentAddress,jdbcType=VARCHAR}, #{idCradAddress,jdbcType=VARCHAR}, 
+      #{idCradStarttime,jdbcType=VARCHAR}, #{idCradEndtime,jdbcType=VARCHAR}, #{ctime22,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.base.pojo.LockResidents">
+    insert into lock_residents
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="telephone != null">
+        telephone,
+      </if>
+      <if test="gender != null">
+        gender,
+      </if>
+      <if test="nationality != null">
+        nationality,
+      </if>
+      <if test="birth != null">
+        birth,
+      </if>
+      <if test="idCrad != null">
+        id_crad,
+      </if>
+      <if test="permanentAddress != null">
+        permanent_address,
+      </if>
+      <if test="idCradAddress != null">
+        id_crad_address,
+      </if>
+      <if test="idCradStarttime != null">
+        id_crad_starttime,
+      </if>
+      <if test="idCradEndtime != null">
+        id_crad_endtime,
+      </if>
+      <if test="ctime22 != null">
+        ctime22,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null">
+        #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null">
+        #{gender,jdbcType=VARCHAR},
+      </if>
+      <if test="nationality != null">
+        #{nationality,jdbcType=VARCHAR},
+      </if>
+      <if test="birth != null">
+        #{birth,jdbcType=VARCHAR},
+      </if>
+      <if test="idCrad != null">
+        #{idCrad,jdbcType=VARCHAR},
+      </if>
+      <if test="permanentAddress != null">
+        #{permanentAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="idCradAddress != null">
+        #{idCradAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="idCradStarttime != null">
+        #{idCradStarttime,jdbcType=VARCHAR},
+      </if>
+      <if test="idCradEndtime != null">
+        #{idCradEndtime,jdbcType=VARCHAR},
+      </if>
+      <if test="ctime22 != null">
+        #{ctime22,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.base.pojo.LockResidents">
+    update lock_residents
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null">
+        telephone = #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null">
+        gender = #{gender,jdbcType=VARCHAR},
+      </if>
+      <if test="nationality != null">
+        nationality = #{nationality,jdbcType=VARCHAR},
+      </if>
+      <if test="birth != null">
+        birth = #{birth,jdbcType=VARCHAR},
+      </if>
+      <if test="idCrad != null">
+        id_crad = #{idCrad,jdbcType=VARCHAR},
+      </if>
+      <if test="permanentAddress != null">
+        permanent_address = #{permanentAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="idCradAddress != null">
+        id_crad_address = #{idCradAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="idCradStarttime != null">
+        id_crad_starttime = #{idCradStarttime,jdbcType=VARCHAR},
+      </if>
+      <if test="idCradEndtime != null">
+        id_crad_endtime = #{idCradEndtime,jdbcType=VARCHAR},
+      </if>
+      <if test="ctime22 != null">
+        ctime22 = #{ctime22,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.base.pojo.LockResidents">
+    update lock_residents
+    set name = #{name,jdbcType=VARCHAR},
+      telephone = #{telephone,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=VARCHAR},
+      nationality = #{nationality,jdbcType=VARCHAR},
+      birth = #{birth,jdbcType=VARCHAR},
+      id_crad = #{idCrad,jdbcType=VARCHAR},
+      permanent_address = #{permanentAddress,jdbcType=VARCHAR},
+      id_crad_address = #{idCradAddress,jdbcType=VARCHAR},
+      id_crad_starttime = #{idCradStarttime,jdbcType=VARCHAR},
+      id_crad_endtime = #{idCradEndtime,jdbcType=VARCHAR},
+      ctime22 = #{ctime22,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="com.ztgm.base.pojo.LockResidents">
+	select
+	<include refid="Base_Column_List" />
+	from lock_residents c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = #{id}
+	</if>
+	
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="com.ztgm.base.pojo.LockResidents">
+	delete from lock_residents
+
+	where id = #{id,jdbcType=VARCHAR}
+
+</delete>
+
+</mapper>

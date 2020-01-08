@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.base.dao.PermissionMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.base.pojo.MenuPermission">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="percode" jdbcType="VARCHAR" property="percode" />
+    <result column="parentid" jdbcType="VARCHAR" property="parentid" />
+    <result column="parentids" jdbcType="VARCHAR" property="parentids" />
+    <result column="sortstring" jdbcType="VARCHAR" property="sortstring" />
+    
+       <result column="parentname" jdbcType="VARCHAR" property="parentname" /> 
+    
+    <result column="available" jdbcType="VARCHAR" property="available" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+    
+  
+    
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, type, url, percode, parentid, parentids, sortstring, available,icon
+  </sql>
+  
+  
+
+
+     <select id="selectPermissionList" parameterType="com.ztgm.base.pojo.MenuPermission" resultMap="BaseResultMap">
+    select 
+   p.*,p1.name parentname
+    from sys_permission p left join sys_permission p1 on p.parentid=p1.id
+    where 1=1
+      <if test="name != null and name !='' ">
+       and  p.name like concat('%',#{name},'%')
+      </if>
+       <if test="parentid != null and parentid !='' ">
+       and  p.parentid =#{parentid}
+      </if>
+       <if test="type != null and type !='' ">
+       and  p.type =#{type}
+      </if>
+       <if test="available != null and available !='' ">
+       and  p.available =#{available}
+      </if>
+      
+      order by p.sortstring 
+    
+  </select>
+  
+
+<select id="getRolePermissionList" parameterType="com.ztgm.base.pojo.Role"
+		resultMap="BaseResultMap">
+
+			select distinct menu.* from 
+sys_role_permission rm 
+ left join sys_permission menu on menu.id=rm.sys_permission_id
+ left join sys_role r on rm.sys_role_id=r.id
+where 1=1
+ 
+ and r.id=#{id}
+ 
+and menu.available=1
+ order by menu.sortstring asc
+
+	</select>
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_permission
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from sys_permission
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.base.pojo.MenuPermission">
+    insert into sys_permission (id, name, type, 
+      url, percode, parentid, 
+      parentids, sortstring, available
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{url,jdbcType=VARCHAR}, #{percode,jdbcType=VARCHAR}, #{parentid,jdbcType=VARCHAR}, 
+      #{parentids,jdbcType=VARCHAR}, #{sortstring,jdbcType=VARCHAR}, #{available,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.base.pojo.MenuPermission">
+    insert into sys_permission
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="percode != null">
+        percode,
+      </if>
+      <if test="parentid != null">
+        parentid,
+      </if>
+      <if test="parentids != null">
+        parentids,
+      </if>
+      <if test="sortstring != null">
+        sortstring,
+      </if>
+      <if test="available != null">
+        available,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="percode != null">
+        #{percode,jdbcType=VARCHAR},
+      </if>
+      <if test="parentid != null">
+        #{parentid,jdbcType=VARCHAR},
+      </if>
+      <if test="parentids != null">
+        #{parentids,jdbcType=VARCHAR},
+      </if>
+      <if test="sortstring != null">
+        #{sortstring,jdbcType=VARCHAR},
+      </if>
+      <if test="available != null">
+        #{available,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.base.pojo.MenuPermission">
+    update sys_permission
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="percode != null">
+        percode = #{percode,jdbcType=VARCHAR},
+      </if>
+      <if test="parentid != null">
+        parentid = #{parentid,jdbcType=VARCHAR},
+      </if>
+      <if test="parentids != null">
+        parentids = #{parentids,jdbcType=VARCHAR},
+      </if>
+      <if test="sortstring != null">
+        sortstring = #{sortstring,jdbcType=VARCHAR},
+      </if>
+      <if test="available != null">
+        available = #{available,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.base.pojo.MenuPermission">
+    update sys_permission
+    set name = #{name,jdbcType=VARCHAR},
+      type = #{type,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      percode = #{percode,jdbcType=VARCHAR},
+      parentid = #{parentid,jdbcType=VARCHAR},
+      parentids = #{parentids,jdbcType=VARCHAR},
+      sortstring = #{sortstring,jdbcType=VARCHAR},
+      available = #{available,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <select id="selectPermissionsByRoleId" resultMap="BaseResultMap">
+    SELECT t2.* FROM sys_role_permission t1,sys_permission t2 WHERE t1.sys_permission_id=t2.id AND t2.available=1 AND sys_role_id=#{roleId} ORDER BY t2.type asc,t2.sortstring
+  </select>
+
+
+  <select id="selectPermissionsByManagerId" resultMap="BaseResultMap">
+   select * from (
+   SELECT  distinct t2.* FROM 
+manager m, sys_user_role ur,
+sys_role_permission t1,sys_permission t2 
+WHERE 
+m.ID=ur.sys_user_id
+and ur.sys_role_id=t1.sys_role_id and 
+t1.sys_permission_id=t2.id AND t2.available=1 
+AND m.ID=#{mangerId}
+) temp
+order BY temp.type asc,temp.sortstring
+  </select>
+
+
+
+
+  <select id="selectPermissions" resultType="java.util.HashMap">
+    SELECT url,percode FROM sys_permission  WHERE  available=1 AND type=2
+  </select>
+</mapper>

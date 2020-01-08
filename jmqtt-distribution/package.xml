@@ -40,6 +40,7 @@
                 <include>org.jmqtt:jmqtt-store</include>
                 <include>org.jmqtt:jmqtt-group</include>
                 <include>org.jmqtt:jmqtt-rule</include>
+                <include>org.jmqtt:jmqtt-web</include>
             </includes>
             <binaries>
                 <outputDirectory>lib/</outputDirectory>

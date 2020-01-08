@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.demo.dao.TestMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.demo.pojo.Test">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="root_path" jdbcType="VARCHAR" property="rootPath" />
+    <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+    <result column="icons" jdbcType="VARCHAR" property="icons" />
+    <result column="enable" jdbcType="VARCHAR" property="enable" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, root_path, create_time, icons, enable
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from test
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from test
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.demo.pojo.Test">
+    insert into test (id, name, root_path, 
+      create_time, icons, enable
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{rootPath,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=VARCHAR}, #{icons,jdbcType=VARCHAR}, #{enable,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.demo.pojo.Test">
+    insert into test
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="rootPath != null">
+        root_path,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="icons != null">
+        icons,
+      </if>
+      <if test="enable != null">
+        enable,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="rootPath != null">
+        #{rootPath,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=VARCHAR},
+      </if>
+      <if test="icons != null">
+        #{icons,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.demo.pojo.Test">
+    update test
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="rootPath != null">
+        root_path = #{rootPath,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=VARCHAR},
+      </if>
+      <if test="icons != null">
+        icons = #{icons,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        enable = #{enable,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.demo.pojo.Test">
+    update test
+    set name = #{name,jdbcType=VARCHAR},
+      root_path = #{rootPath,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=VARCHAR},
+      icons = #{icons,jdbcType=VARCHAR},
+      enable = #{enable,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="com.ztgm.demo.pojo.Test">
+	select
+	<include refid="Base_Column_List" />
+	from test c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = #{id}
+	</if>
+	
+		
+		<if test=" name !=null and name !='' ">
+		and c.name like concat ('%', #{name},'%')
+	</if>
+		
+			
+		
+		<if test=" rootPath !=null and rootPath !='' ">
+		and c.root_path like concat ('%', #{rootPath},'%')
+	</if>
+		
+			
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="com.ztgm.demo.pojo.Test">
+	delete from test
+
+	where id = #{id,jdbcType=VARCHAR}
+
+</delete>
+
+</mapper>

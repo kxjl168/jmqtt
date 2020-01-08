@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.ztgm.mqtt</groupId>
+	<artifactId>mqtt-web-console</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>mqtt-web-console</name>
+	<description>Base FrameWk for ztgm</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+
+	</parent>
+	
+	<!--  本地仓库 api-common -->
+    <repositories>
+        <repository>
+            <id>local-repository</id>
+            <url>http://192.168.100.11:8081/repository/maven-public</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+       
+    </repositories>
+    
+    <!-- nexus 发布 -->
+	<distributionManagement>
+		<repository>
+			<!--id的名字可以任意取，但是在manven setting文件中的属性<server>的ID与这里一致 -->
+			<id>nexus-release</id>
+			<!--指向仓库类型为host(宿主仓库）的储存类型为Release的仓库 -->
+			<url>http://192.168.100.11:8081/repository/maven-releases/</url>
+			
+		</repository>
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<!--指向仓库类型为host(宿主仓库）的储存类型为Snapshot的仓库 -->
+			<url>http://192.168.100.11:8081/repository/maven-snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
+	
+    
+
+	<properties>
+		<maven.test.skip>true</maven.test.skip>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<build>
+		<resources>
+			<resource>
+				<targetPath>${project.build.directory}/classes</targetPath>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.yml</include>
+					<include>generator/generatorConfig.xml</include>
+				</includes>
+			</resource>
+			<!-- 其他全部直接复制 -->
+			<resource>
+				<targetPath>${project.build.directory}/classes</targetPath>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/*.properties</exclude>
+					<exclude>**/*.yml</exclude>
+					<exclude>generator/generatorConfig.xml</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<!-- SpringBoot Debug模式 -->
+				<configuration>
+					<jvmArguments>
+						-Xdebug
+						-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+					</jvmArguments>
+				</configuration>
+				<!-- SpringBoot热部署 -->
+				<dependencies>
+					<dependency>
+						<groupId>org.springframework</groupId>
+						<artifactId>springloaded</artifactId>
+						<version>1.2.6.RELEASE</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<!-- mybatis generator 自动生成代码插件 -->
+			<plugin>
+				<groupId>org.mybatis.generator</groupId>
+				<artifactId>mybatis-generator-maven-plugin</artifactId>
+				<version>1.3.2</version>
+				<configuration>
+					<!--配置.xml文件路径 -->
+					<configurationFile>${basedir}/src/main/resources/generator/generatorConfig.xml</configurationFile>
+					<overwrite>true</overwrite>
+					<verbose>true</verbose>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>org.jmqtt</groupId>
+			<artifactId>jmqtt-web-lib</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+
+	<!-- 	<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+			<version>3.3.0.RELEASE</version>
+		</dependency>
+
+
+
+		<dependency>
+			<groupId>io.projectreactor.addons</groupId>
+			<artifactId>reactor-extra</artifactId>
+			<version>3.3.0.RELEASE</version>
+		</dependency>
+
+
+
+
+		<dependency>
+			<groupId>com.microsoft.azure</groupId>
+			<artifactId>msal4j</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.microsoft.ews-java-api</groupId>
+			<artifactId>ews-java-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+ -->
+
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20180813</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-data-redis</artifactId>
+			<version>1.3.1.RELEASE</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- 增加mongodb支持 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+
+		<!--mybatis-plus引入 -->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<version>3.0.7.1</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.mybatis.generator</groupId>
+			<artifactId>mybatis-generator-core</artifactId>
+			<version>1.3.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sitemesh</groupId>
+			<artifactId>sitemesh</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.23</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-thymeleaf</artifactId> 
+			</dependency> -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-joda</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-parameter-names</artifactId>
+		</dependency>
+		<!-- 分页插件 -->
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper-spring-boot-starter</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<!-- alibaba的druid数据库连接池 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid-spring-boot-starter</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<!-- logback start -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		 	<version>1.7.25</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.logback-extensions</groupId>
+			<artifactId>logback-ext-spring</artifactId>
+			<version>0.1.1</version>
+		</dependency>
+		<!-- 添加servlet3.1核心包 -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<!--<scope>provided</scope> -->
+		</dependency>
+		<!-- 支持 @ConfigurationProperties 注解 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!--SpringBoot 热部署 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>springloaded</artifactId>
+			<version>1.2.6.RELEASE</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!--JSON依赖 -->
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.4</version>
+			<classifier>jdk15</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ezmorph</groupId>
+			<artifactId>ezmorph</artifactId>
+			<version>1.0.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-core</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-web</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-spring</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-ehcache</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<!--SMS所需jar包 -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.47</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.4.9</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>aliyun-java-sdk-core</artifactId>
+			<version>4.0.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>3.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.54</version>
+		</dependency>
+		
+		   <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.1.31.Final</version>
+            </dependency>
+
+		<!-- <dependency>             <groupId>org.apache.tomcat.embed</groupId> 
+			            <artifactId>tomcat-embed-jasper</artifactId>             <scope>provided</scope> 
+			        </dependency> -->
+		<!-- <dependency>             <groupId>javax.servlet.jsp.jstl</groupId> 
+			            <artifactId>jstl-api</artifactId>             <version>1.2</version> 
+			        </dependency> -->
+
+	</dependencies>
+
+
+	<profiles>
+		<!-- 初始化数据库 -->
+		<profile>
+			<id>dev-zj</id>
+			<!--可本地修改，避免影响其他开发 -->
+			<properties>
+				<kauto.templatePath>F:\\kxjl\\base\\src\\main\\resources\\generator</kauto.templatePath>
+				<kauto.javaScanPath>F:\\kxjl\\base\\src\\main\\java</kauto.javaScanPath>
+
+				<kauto.pageScanPath>F:\\kxjl\\base\\src\\main\\resources\\static\\vendor\\pageAuto</kauto.pageScanPath>
+				<kauto.mysqljarPath>E:\\Program Files
+					(x86)\\Sybase\\mysql-connector-java-5.1.44.jar</kauto.mysqljarPath>
+
+				<kauto.databaseSchema>mqtt</kauto.databaseSchema>
+				<kauto.basePacakge>com.ztgm.mqtt</kauto.basePacakge>
+				<kauto.author>zj</kauto.author>
+
+
+				<kauto.database.jdbc><![CDATA[jdbc:mysql://192.168.100.126:3306/mqtt?useUnicode=true&characterEncoding=utf-8]]></kauto.database.jdbc>
+				<kauto.database.username>root</kauto.database.username>
+				<kauto.database.password>123456</kauto.database.password>
+
+
+				<weboauth.url>http://ztgmwl.com:9002/ou/</weboauth.url>
+
+				<weboauth.appid>214260a9881b4c1a9b571a90ef6a8a8d</weboauth.appid>
+				<weboauth.appsecret>da7d642bfdf7438bb29cfd8475c6a612</weboauth.appsecret>
+				<weboauth.localOAuthCallbackUrl>http://ztgmwl.com:9002/demo/ologin/signIn</weboauth.localOAuthCallbackUrl>
+
+
+				<!-- 启动端口 -->
+				<server.port>9998</server.port>
+				<server.context-path><![CDATA[/mqtt]]></server.context-path>
+
+				<database.jdbc><![CDATA[jdbc:mysql://192.168.100.126:3306/mqtt?useUnicode=true&characterEncoding=utf-8]]></database.jdbc>
+				<database.username>root</database.username>
+				<database.password>123456</database.password>
+
+				<database.mongodb>mongodb://dbuser:123@192.168.100.204:27017/test</database.mongodb>
+
+				<redis.host>192.168.100.21</redis.host>
+				<redis.password>om1G*kkPi^rOwPxE</redis.password>
+				<redis.port>6379</redis.port>
+
+
+				<dubbo.id>ztgm-demo-comsumer</dubbo.id>
+				<dubbo.name>ztgm-demo-comsumer</dubbo.name>
+				<dubbo.zookeeper><![CDATA[zookeeper://127.0.0.1:2181]]></dubbo.zookeeper>
+
+
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+
+		<profile>
+			<id>dev-xxx</id>
+			<!--可本地修改，避免影响其他开发 -->
+			<properties>
+				<kauto.templatePath>F:\\w3\\baseFrameWk\\base\\src\\main\\resources\\generator</kauto.templatePath>
+				<kauto.javaScanPath>F:\\w3\\baseFrameWk\\base\\src\\main\\java</kauto.javaScanPath>
+
+				<kauto.pageScanPath>F:\\w3\dbqj\\taskTransferPlat\\src\\main\\resources\\static\\vendor\\pageAuto</kauto.pageScanPath>
+				<kauto.mysqljarPath>E:\\Program Files
+					(x86)\\Sybase\\mysql-connector-java-5.1.44.jar</kauto.mysqljarPath>
+
+				<kauto.databaseSchema>mqtt</kauto.databaseSchema>
+				<kauto.basePacakge>com.ztgm.mqtt</kauto.basePacakge>
+				<kauto.author>zj</kauto.author>
+
+
+
+				<weboauth.url>http://ztgmwl.com:9002/ou/</weboauth.url>
+
+				<weboauth.appid>ee7f18a513594f2293447500903ec6df</weboauth.appid>
+				<weboauth.appsecret>fabc3fc5749b41748b83200a5d167729</weboauth.appsecret>
+				<weboauth.localOAuthCallbackUrl>http://ztgmwl.com:9002/d2/ologin/signIn/</weboauth.localOAuthCallbackUrl>
+
+
+
+
+				<!-- 启动端口 -->
+				<server.port>8882</server.port>
+				<server.context-path><![CDATA[/d1]]></server.context-path>
+
+				<database.jdbc><![CDATA[jdbc:mysql://192.168.100.134:3306/base?useUnicode=true&characterEncoding=utf-8]]></database.jdbc>
+				<database.username>root</database.username>
+				<database.password>123456</database.password>
+
+				<database.mongodb>mongodb://dbuser:123@192.168.100.204:27017/test</database.mongodb>
+
+				<redis.host>192.168.100.21</redis.host>
+				<redis.password>om1G*kkPi^rOwPxE</redis.password>
+				<redis.port>6379</redis.port>
+
+
+			</properties>
+			<activation>
+
+			</activation>
+		</profile>
+
+	</profiles>
+
+
+</project>

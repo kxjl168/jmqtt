@@ -1,0 +1,28 @@
+.deviceCriteria select {
+    margin-top: 42px;
+    margin-left: 5px;
+}
+
+.control-label {
+    width: 15%;
+}
+
+.bootstrap-select {
+    width: 123px !important;
+}
+
+.passwordType {
+    position: relative;
+}
+
+.passwordType .password {
+    width: 90% !important;
+}
+
+.passwordType .fa {
+    position: absolute;
+    right: 42px;
+    top: 6px;
+    font-size: 20px;
+    cursor: pointer;
+}

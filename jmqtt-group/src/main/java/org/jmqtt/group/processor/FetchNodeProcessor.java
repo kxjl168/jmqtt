@@ -1,6 +1,8 @@
 package org.jmqtt.group.processor;
 
 import io.netty.channel.ChannelHandlerContext;
+
+import org.jmqtt.common.helper.RemotingHelper;
 import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.group.common.ClusterNodeManager;
@@ -9,7 +11,7 @@ import org.jmqtt.group.protocol.ClusterRequestCode;
 import org.jmqtt.group.protocol.ClusterResponseCode;
 import org.jmqtt.group.protocol.CommandConstant;
 import org.jmqtt.group.protocol.node.ServerNode;
-import org.jmqtt.remoting.util.RemotingHelper;
+import org.jmqtt.remoting.session.ConnectManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,7 @@ public class FetchNodeProcessor implements ClusterRequestProcessor {
         if (serverNode != null) {
             serverNode.setLastUpdateTime(System.currentTimeMillis());
             serverNode.setActive(true);
+           
             ServerNode prevNode = ClusterNodeManager.getInstance().putNewNode(serverNode);
             if (prevNode != null) {
                 //log.info("fetch node request prev node is not null,nodeName:{},nodeAddr:{},nodeActive:{}", prevNode.getNodeName(), prevNode.getAddr(), prevNode.isActive());

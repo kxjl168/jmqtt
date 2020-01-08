@@ -35,6 +35,16 @@ public class ConnectManager {
 		else
 			return "";
 	}
+	
+	/**
+	 * 当前节点总在线数
+	 * @return
+	 * @author zj
+	 * @date 2020年1月8日
+	 */
+	public Long getOnlineNums() {
+		return Long.valueOf(clientCache.keySet().size());
+	}
 
 	public ClientSession getClient(String clientId) {
 		return this.clientCache.get(clientId);

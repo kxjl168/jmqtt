@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.base.dao.ManagerRoleMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.base.pojo.ManagerRole">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="sys_user_id" jdbcType="VARCHAR" property="sysManagerId" />
+    <result column="sys_role_id" jdbcType="VARCHAR" property="sysRoleId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, sys_user_id, sys_role_id
+  </sql>
+  
+  
+  
+   <delete id="deleteManagerRole" parameterType="com.ztgm.base.pojo.Manager">
+    delete from sys_user_role
+    where sys_user_id = #{id,jdbcType=VARCHAR}
+  </delete>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_user_role
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from sys_user_role
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.base.pojo.ManagerRole">
+    insert into sys_user_role (id, sys_user_id, sys_role_id
+      )
+    values (#{id,jdbcType=VARCHAR}, #{sysManagerId,jdbcType=VARCHAR}, #{sysRoleId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.base.pojo.ManagerRole">
+    insert into sys_user_role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sysManagerId != null">
+        sys_user_id,
+      </if>
+      <if test="sysRoleId != null">
+        sys_role_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="sysManagerId != null">
+        #{sysManagerId,jdbcType=VARCHAR},
+      </if>
+      <if test="sysRoleId != null">
+        #{sysRoleId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.base.pojo.ManagerRole">
+    update sys_user_role
+    <set>
+      <if test="sysManagerId != null">
+        sys_user_id = #{sysManagerId,jdbcType=VARCHAR},
+      </if>
+      <if test="sysRoleId != null">
+        sys_role_id = #{sysRoleId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.base.pojo.ManagerRole">
+    update sys_user_role
+    set sys_user_id = #{sysManagerId,jdbcType=VARCHAR},
+      sys_role_id = #{sysRoleId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+  <insert id="update" parameterType="java.util.Map">
+    UPDATE sys_user_role
+    set sys_role_id=#{sysRoleId}
+    WHERE id=#{id}
+  </insert>
+</mapper>

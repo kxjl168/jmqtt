@@ -1,10 +1,11 @@
 package org.jmqtt.group.remoting;
 
 import io.netty.channel.Channel;
+
+import org.jmqtt.common.bean.InvokeCallback;
 import org.jmqtt.common.helper.RejectHandler;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
-import org.jmqtt.group.common.InvokeCallback;
 import org.jmqtt.group.protocol.ClusterRemotingCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

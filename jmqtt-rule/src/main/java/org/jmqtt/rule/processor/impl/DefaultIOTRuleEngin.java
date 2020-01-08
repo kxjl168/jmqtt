@@ -14,6 +14,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rule;
 import org.jeasy.rules.api.Rules;
@@ -23,6 +24,8 @@ import org.jeasy.rules.core.RuleBuilder;
 import org.jmqtt.common.bean.Message;
 import org.jmqtt.common.bean.RuleType;
 import org.jmqtt.common.bean.ZRule;
+import org.jmqtt.common.config.RuleConfig;
+import org.jmqtt.common.helper.HttpSendPostNew;
 import org.jmqtt.common.helper.RejectHandler;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
@@ -52,6 +55,8 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 	private ScheduledThreadPoolExecutor scheduleGetRuleExecutor;
 	private final int FETCH_RULE_TIME_MILLIS = 5 * 60 * 1000;
 
+	private RuleConfig ruleConfig;
+
 	@Override
 	public boolean filter(Message message) {
 		boolean isNotFull = messageQueue.offer(message);
@@ -63,13 +68,15 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 
 	public DefaultIOTRuleEngin(int pollThreadNum, RuleMessageStore ruleMessageStore,
 			SubscriptionMatcher subscriptionMatcher, MessageDispatcher messageDispatcher,
-			ExecutorService executorService) {
+			ExecutorService executorService, RuleConfig ruleConfig) {
 		this.pollThreadNum = pollThreadNum;
 
 		this.ruleMessageStore = ruleMessageStore;
 
 		this.scheduleGetRuleExecutor = new ScheduledThreadPoolExecutor(1,
 				new ThreadFactoryImpl("scheduleFetchRuleThread"));
+
+		this.ruleConfig = ruleConfig;
 
 		this.defaultRuleDespatcher = new DefaultRuleDespatcher(10, subscriptionMatcher, messageDispatcher);
 
@@ -161,28 +168,63 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 		return rule;
 	}
 
-	public boolean refreshRules() {
+	public boolean refreshRules(String productKey) {
 		// HTTP
-		// TODO
 
 		List<ZRule> rules = new ArrayList<>();
+
+		String token = "";
+		String url = this.ruleConfig.getRuleweburl();
+
+		JSONObject jobj = new JSONObject();
+		jobj.put("productKey", productKey);
+		String str = jobj.toString();
+
+		List<BasicClientCookie> cks = new ArrayList<BasicClientCookie>();
+		HashMap<String, String> headerstrs = new HashMap<>();
+		headerstrs.put("User-Token", "8add95975fc743acb89f4d325717cfeb");
+		try {
+			String rst = HttpSendPostNew.sendHttpJSONDataNoSSL(true, token, false, url, str, headerstrs, cks);
+			if (rst != null && !rst.equals("")) {
+				JSONObject jsonobj = JSONObject.parseObject(rst);
+				if (jsonobj.getString("code").equals("100")) {
+					rules = JSONObject.parseArray(jsonobj.getString("data"), ZRule.class);
+				}
+			}
+		} catch (Exception e) {
+			log.debug("Rule Engin rule list Refresh Error:"+e.getMessage());
+			return false;
+		}
+
+		// /manager/mqttrule
+
+		if (rules == null || rules.size() == 0)
+			return false;
+		else {
+			log.debug("productKey:{} rule refreshed!!!! size:{}",productKey,rules.size());
+		}
+
 		Map<String, List<ZRule>> productRules = new HashMap<>();
 
-		JSONObject jconfig = new JSONObject();
-		jconfig.put("desttopic", "cool");
-		ZRule r = new ZRule("testproduct", "1", "1", "test rule", "testtopic", " data > 4", jconfig.toString());
-		rules.add(r);
+		/*
+		 * JSONObject jconfig = new JSONObject(); jconfig.put("desttopic", "cool");
+		 * ZRule r = new ZRule("testproduct", "1", "1", "test rule", "testtopic",
+		 * " data > 4", jconfig.toString()); rules.add(r);
+		 * 
+		 * productRules.put("testproduct", rules);
+		 */
 
-		productRules.put("testproduct", rules);
+		// 每次获取一个productKey下的rules
+		productRules.put(rules.get(0).getProductKey(), rules);
 
 		// 检查有变化的rule
 
-		for (String productKey : productRules.keySet()) {
+		for (String pkey : productRules.keySet()) {
 
 			// 刷新rule
-			ruleMessageStore.removeRuleMessage(productKey);
+			ruleMessageStore.removeRuleMessage(pkey);
 
-			ruleMessageStore.storeRuleMessage(productKey, productRules.get(productKey));
+			ruleMessageStore.storeRuleMessage(pkey, productRules.get(productKey));
 		}
 
 		return true;
@@ -195,7 +237,7 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 		this.scheduleGetRuleExecutor.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
-				refreshRules();
+				refreshRules("");
 			}
 		}, 10 * 1000, FETCH_RULE_TIME_MILLIS, TimeUnit.MILLISECONDS);
 

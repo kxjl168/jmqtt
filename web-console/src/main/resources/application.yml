@@ -1,0 +1,80 @@
+server:
+ port: @server.port@
+ context-path: @server.context-path@
+
+spring:
+   session: 
+    store-type: redis
+  #上传文件最大值
+   http.multipart.maxFileSize: 1000Mb
+   http.multipart.maxRequestSize: 1000Mb
+   datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: @database.jdbc@
+    username: @database.username@
+    password: @database.password@
+   #freemarker:
+    #模板加载的位置
+    #template-loader-path: classpath:/templates
+    #关闭缓存
+    cache: false
+    allow-request-override: false
+    check-template-location: true
+    charset: UTF-8
+    content-type: text/html
+    expose-request-attributes: false
+    expose-session-attributes: false
+    request-context-attribute: request
+    expose-spring-macro-helpers: false
+    settings-template-update-delay: 0
+   dubbo: 
+    application:
+     id: @dubbo.id@
+     name: @dubbo.name@
+     timeout: 30000
+    registry: 
+     address: @dubbo.zookeeper@
+    protocol:
+     id: dubbo
+     name: dubbo 
+    scan: com.ztgm.*
+    consumer: 
+     check: false
+   aop:
+    auto: true
+    proxy-target-class: true
+   #redis基础配置
+   redis:
+    database: 0
+    host: @redis.host@
+    password: @redis.password@  
+    port: @redis.port@
+    timeout: 3000
+    pool:
+     max-idle: 500
+     min-idle: 50
+     max-active: 2000
+     max-wait: 1000
+   data:
+    mongodb:
+      uri: @database.mongodb@
+ # 分页配置
+pagehelper:
+    helper-dialect: mysql
+    reasonable: true
+    support-methods-arguments: true
+    params: count=countSql
+     #逻辑删除配置
+ #逻辑删除配置
+mybatis-plus:
+  mapper-locations: classpath*:mappers/*.xml,classpath*:mappers/**/*.xml
+  type-aliases-package: com.ztgm.base.pojo,com.ztgm.*.pojo,
+  configuration:
+    map-underscore-to-camel-case: false
+  global-config:
+    refresh: true
+    db-config:
+      logic-delete-value: 2 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 1 # 逻辑未删除值(默认为 0)
+
+  

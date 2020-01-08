@@ -1,0 +1,81 @@
+.btn-primary {
+    background-color: #0474fe;
+    border-radius: 5px;
+    margin-left: 15px;
+    margin-top: -5px;
+}
+
+.logMenu {
+    background-color: #FFFFFF;
+    box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.15);
+    margin-left: 16px;
+    margin-top: 20px;
+    border-radius: 5px;
+    height: 850px;
+}
+
+.logMenu a {
+    color: #333333;
+    margin-top: 15px;
+    margin-left: 15px;
+    width: 88%;
+    border-radius: 5px;
+}
+
+.logShow {
+    background-color: #FFFFFF;
+    box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.15);
+    margin-left: 16px;
+    margin-top: 20px;
+    border-radius: 5px;
+    height: 850px;
+    width: 80% !important;
+    overflow-y: auto;
+}
+
+.logShow h3 {
+    width: 200px;
+    height: 30px;
+    font-size: 16px;
+    font-weight: normal;
+    font-stretch: normal;
+    line-height: 33.3px;
+    letter-spacing: 0px;
+    color: #333333;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#logShow {
+    color: #333333;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

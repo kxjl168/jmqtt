@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!-- 配置mysql 驱动jar包路径.用了绝对路径 -->
+    <!-- <classPathEntry location="C:\Users\nico\.m2\repository\mysql\mysql-connector-java\5.1.46\mysql-connector-java-5.1.46.jar"/> -->
+
+ <!--<classPathEntry location="E:\\Program Files (x86)\\Sybase\\mysql-connector-java-5.1.44.jar"/>-->
+    <classPathEntry location="${jarPath}"/>
+
+
+    <context id="mysql_tables" targetRuntime="MyBatis3">
+        <commentGenerator type="com.ztgm.base.mybatisMain.MyCommentGenerator">
+           
+        </commentGenerator>
+
+        <!-- 数据库连接 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="@kauto.database.jdbc@"
+                        userId="@kauto.database.username@"
+                        password="@kauto.database.password@">
+                         <property name="useInformationSchema" value="true"></property>
+        </jdbcConnection>
+
+        <javaTypeResolver type="com.ztgm.base.mybatisMain.MyJavaTypeResolverDefaultImpl">
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- 生成模型的包名和位置-->
+        <javaModelGenerator targetPackage="${basepackageName}.pojo" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- 生成映射文件的包名和位置-->
+        <sqlMapGenerator targetPackage="mappers" targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <#if daosubfold!=''>
+        <!-- 生成DAO的包名和位置-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="${basepackageName}.dao.${daosubfold}" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+        </#if>
+        
+          <#if daosubfold==''>
+        <!-- 生成DAO的包名和位置-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="${basepackageName}.dao" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+        </#if>
+
+
+  	<table tableName="${tableName}" domainObjectName="${modelClass}" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+<property name="useActualColumnNames" value="${useActualColumnNames}"/> 
+</table>
+
+
+  
+    </context>
+</generatorConfiguration>

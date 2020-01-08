@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.mqtt.dao.MqttNodeMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.mqtt.pojo.MqttNode">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="ip_port" jdbcType="VARCHAR" property="ipPort" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="refresh_time" jdbcType="VARCHAR" property="refreshTime" />
+    <result column="online_users" jdbcType="VARCHAR" property="onlineUsers" />
+    <result column="configinfo" jdbcType="VARCHAR" property="configinfo" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, ip_port, status, refresh_time, online_users, configinfo
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from mqtt_node
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from mqtt_node
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.mqtt.pojo.MqttNode">
+    insert into mqtt_node (id, name, ip_port, 
+      status, refresh_time, online_users, 
+      configinfo)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{ipPort,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{refreshTime,jdbcType=VARCHAR}, #{onlineUsers,jdbcType=VARCHAR}, 
+      #{configinfo,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.mqtt.pojo.MqttNode">
+    insert into mqtt_node
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="ipPort != null">
+        ip_port,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="refreshTime != null">
+        refresh_time,
+      </if>
+      <if test="onlineUsers != null">
+        online_users,
+      </if>
+      <if test="configinfo != null">
+        configinfo,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="ipPort != null">
+        #{ipPort,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="refreshTime != null">
+        #{refreshTime,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineUsers != null">
+        #{onlineUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="configinfo != null">
+        #{configinfo,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.mqtt.pojo.MqttNode">
+    update mqtt_node
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="ipPort != null">
+        ip_port = #{ipPort,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="refreshTime != null">
+        refresh_time = #{refreshTime,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineUsers != null">
+        online_users = #{onlineUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="configinfo != null">
+        configinfo = #{configinfo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.mqtt.pojo.MqttNode">
+    update mqtt_node
+    set name = #{name,jdbcType=VARCHAR},
+      ip_port = #{ipPort,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      refresh_time = #{refreshTime,jdbcType=VARCHAR},
+      online_users = #{onlineUsers,jdbcType=VARCHAR},
+      configinfo = #{configinfo,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="com.ztgm.mqtt.pojo.MqttNode">
+	select
+	<include refid="Base_Column_List" />
+	from mqtt_node c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = #{id}
+	</if>
+	
+		
+		<if test=" name !=null and name !='' ">
+		and c.name like concat ('%', #{name},'%')
+	</if>
+		
+			
+		
+		<if test=" ipPort !=null and ipPort !='' ">
+		and c.ip_port like concat ('%', #{ipPort},'%')
+	</if>
+		
+			
+		
+		<if test=" status !=null and status !='' ">
+		and c.status like concat ('%', #{status},'%')
+	</if>
+		
+			
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="com.ztgm.mqtt.pojo.MqttNode">
+	delete from mqtt_node
+
+	where id = #{id,jdbcType=VARCHAR}
+
+</delete>
+
+</mapper>

@@ -1,6 +1,6 @@
 package org.jmqtt.group;
 
-import org.jmqtt.group.common.InvokeCallback;
+import org.jmqtt.common.bean.InvokeCallback;
 import org.jmqtt.group.protocol.ClusterRemotingCommand;
 import org.jmqtt.remoting.RemotingService;
 import org.jmqtt.remoting.exception.RemotingConnectException;

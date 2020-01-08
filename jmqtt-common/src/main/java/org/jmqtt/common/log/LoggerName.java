@@ -16,4 +16,6 @@ public interface LoggerName {
     String OTHER = "otherLog";
     
     String RULE = "ruleLog";
+    
+    String WEB = "webLog";
 }

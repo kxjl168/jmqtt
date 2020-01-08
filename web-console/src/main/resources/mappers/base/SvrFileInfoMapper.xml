@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.base.dao.SvrFileInfoMapper">
+
+
+	<resultMap id="svrFileInfoMap" type="com.ztgm.base.pojo.SvrFileInfo">
+		<result property="id" column="id" />
+		<result property="old_name" column="old_name" />
+		<result property="save_name" column="save_name" />
+		<result property="full_path" column="full_path" />
+		<result property="http_relative_path" column="http_relative_path" />
+		<result property="http_down_url" column="http_down_url" />
+
+		<result property="file_size" column="file_size" />
+		<result property="save_date" column="save_date" />
+		<result property="file_md5" column="file_md5" />
+		<result property="down_nums" column="down_nums" />
+
+	</resultMap>
+
+
+
+
+	<insert id="SaveFileInfo" parameterType="com.ztgm.base.pojo.SvrFileInfo">
+		insert
+		into
+		sys_file
+		(
+
+		id,old_name,save_name,full_path,http_relative_path
+		,http_down_url
+		,file_size
+		,save_date
+		,file_md5
+		,down_nums
+		)
+		values(
+		#{id},#{old_name},#{save_name},#{full_path},#{http_relative_path}
+		,#{http_down_url}
+		,#{file_size}
+		,#{save_date}
+		,#{file_md5}
+		,DEFAULT
+		)
+	</insert>
+
+	<delete id="DeleteFileInfo" parameterType="com.ztgm.base.pojo.SvrFileInfo">
+		delete
+		from
+		sys_file where id=#{id}
+	</delete>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="svrFileInfoMap">
+    select 
+   *
+    from sys_file
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+
+	<select id="getFileInfo" parameterType="com.ztgm.base.pojo.SvrFileInfo" resultType="com.ztgm.base.pojo.SvrFileInfo">
+		select * from sys_file where id=#{id} or file_md5=#{file_md5}
+		limit 1;
+	</select>
+	<update id="addFileDonwLoadNums" parameterType="com.ztgm.base.pojo.SvrFileInfo">
+		update sys_file set down_nums=down_nums+1 where id=#{id};
+
+	</update>
+</mapper>

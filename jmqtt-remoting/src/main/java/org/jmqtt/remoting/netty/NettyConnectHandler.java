@@ -9,8 +9,9 @@ import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
+
+import org.jmqtt.common.helper.RemotingHelper;
 import org.jmqtt.common.log.LoggerName;
-import org.jmqtt.remoting.util.RemotingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

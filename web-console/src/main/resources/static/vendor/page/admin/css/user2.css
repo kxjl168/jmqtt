@@ -1,0 +1,463 @@
+a {
+    text-decoration: none;
+    underline: none;
+}
+
+a:hover {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+body {
+    font-family: "微软雅黑";
+}
+
+
+/* 头部样式*/
+.navbar-static-top {
+    background: #1cb09a;
+}
+
+.dropdown a {
+    color: #FFFFFF;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+    background-color: #10a18b;
+}
+
+.nav .open > a, .nav .open > a:focus, .nav .open > a:hover {
+    background-color: #10a18b;
+}
+
+
+#side-menu li a {
+    color: #d2d2d2;
+}
+
+#side-menu li:hover a {
+    color: #FFFFFF;
+}
+
+#side-menu li a {
+    color: #FFFFFF;
+}
+
+
+
+.collapse {
+    background: #242424;
+}
+
+.panel {
+    padding: 0;
+}
+
+
+h1 {
+    font-size: 14px;
+    color: #888888;
+    display: inline-block;
+    text-align: center;
+}
+
+.page-header {
+    margin: 14px 0;
+    border-bottom: 0;
+    padding-bottom: 0;
+    color: #333333;
+
+}
+
+.page-header span {
+    color: #1cb09a;
+}
+
+.wzbj {
+    width: 100%;
+    height: 42px;
+    background: #e4e3e3;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #dddddd;
+}
+
+embed {
+    width: 22px;
+    height: 22px;
+    vertical-align: middle;
+}
+
+.thumbnail {
+    height: 150px;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.text-success {
+    color: #333333;
+    float: left;
+    /*margin-top: 95px;*/
+    margin-left: 20px;
+    line-height: 150px;
+}
+
+.ys {
+    font-size: 90px;
+    padding: 10px;
+    color: #999999;
+    background: #FFFFFF;
+    /*border: 1px solid #DDDDDD;*/
+    border-radius: 8px;
+    line-height: 150px;
+}
+
+.tubiao {
+    margin-right: 20px;
+    display: block;
+    float: right;
+}
+
+.opencolor {
+    color: #fb6e56;
+    border: 1px solid #fb6e56;
+}
+
+.thumbnail .caption {
+    padding: 0;
+}
+
+.row .row {
+    margin: 0;
+}
+
+.icon {
+    font-size: 30px;
+    line-height: 40px;
+    float: right;
+    padding-left: 8px;
+    color: #999999;
+}
+
+.opentext {
+    margin-right: 8px;
+    font-size: 14px;
+    color: #666666;
+}
+
+.panel-heading {
+    width: 100%;
+    height: 42px;
+    padding: 0;
+}
+
+.panel-default > .panel-heading {
+    background-color: #d8d8d8;
+}
+
+
+
+.panel-body {
+    padding: 15px 0px 15px 0px;
+}
+
+.switch {
+    float: right;
+    margin-bottom: 0;
+}
+
+.switch label {
+    height: 1.3rem;
+    width: 3.0rem;
+}
+
+.switch label:after {
+    height: 1rem;
+    width: 1rem;
+    left: .2rem;
+    top: .13rem;
+}
+
+input[type="checkbox"] + label {
+    vertical-align: middle;
+}
+
+.switch input:checked + label:after {
+    left: 1.8rem;
+}
+
+.switch input:checked + label {
+    background: #1cb09a;
+}
+
+.switch label {
+    background: #999;
+}
+
+.switch input {
+    top: 0;
+}
+
+/* 中间设备调光灯样式*/
+
+.ui-slider-handle {
+    width: 10px;
+    height: 16px;
+    border: 1px solid #1cb09a;
+    background: #1cb09a;
+    border-radius: 4px;
+    position: absolute;
+    left: -2px;
+    top: -5px;
+    cursor: pointer;
+}
+
+.scale {
+    background-repeat: repeat-x;
+    background-position: 0 100%;
+    background-color: #E4E4E4;
+    border-left: 1px #83BBD9 solid;
+    width: 100px;
+    height: 8px;
+    position: relative;
+    font-size: 0px;
+    border-radius: 3px;
+    float: left;
+}
+
+.scale div {
+    background-repeat: repeat-x;
+    background-color: #1cb09a;
+    width: 0px;
+    position: absolute;
+    height: 8px;
+    left: 0;
+    bottom: 0;
+}
+
+.shuzhi {
+    color: #666666;
+    font-weight: bold;
+    float: left;
+    position: relative;
+    left: 112px;
+    top: -23px;
+}
+
+input[type="text"] {
+    width: 100%;
+    box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
+}
+
+.tiaojie {
+    position: absolute;
+    bottom: 35px;
+    left: 35px;
+    height: 15px;
+
+}
+
+.collapse {
+    background: none;
+
+}
+
+
+
+.kg {
+    font-size: 10px;
+    position: absolute;
+    top: 1px;
+}
+
+.OFF {
+    color: #666666;
+    left: -27px;
+}
+
+.ON {
+    color: #FFFFFF;
+    left: -42px;
+    display: none;
+}
+
+.lista a {
+    cursor: default;
+}
+
+.namexg > .form-control:focus {
+    box-shadow: none;
+    border: 1px solid #66afe9;
+    background: #ffffff;
+
+}
+
+.namexg > .form-control {
+    width: 340px;
+    height: 42px;
+    border-radius: 4px;
+    border: 1px solid #CCCCCC;
+}
+
+.namexg > .cj {
+    width: 300px;
+}
+
+.namexg {
+    margin-top: 15px;
+}
+
+.lista a {
+    cursor: default;
+}
+
+.lista .caption {
+    padding: 0;
+}
+
+.lista {
+    height: 80px;
+}
+
+.lista > .switch {
+    margin-right: 15px;
+}
+
+.name01 {
+    float: left;
+    line-height: 34px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+
+.list {
+    width: 500px;
+    background: #ffffff;
+    border-color: #a6e7de;
+}
+
+.list2 {
+    background: #dbf8f4;
+    border-bottom: 1px solid #a6e7de;
+    text-align: center;
+}
+
+.list2 > .switch {
+    margin-top: 6px;
+    margin-right: 15px;
+}
+
+.headerlist {
+    width: 100%;
+    line-height: 42px;
+    text-align: center;
+}
+
+.kg {
+    font-size: 10px;
+    position: absolute;
+    top: 1px;
+}
+
+.add {
+    margin-top: 50px;
+}
+
+.btnzj {
+    text-align: center;
+    padding-top: 240px;
+}
+
+.btncommon > .btn-default {
+    width: 200px;
+}
+
+.btn-default {
+
+    color: #FFFFFF;
+    background-color: #1cb09a;
+    font-size: 14px;
+    border-color: #1cb09a;
+}
+
+.btn-default:hover {
+    color: #FFFFFF;
+    background-color: #008c77;
+    border-color: #008c77;
+}
+
+.btn-default:active {
+    color: #FFFFFF;
+    background-color: #008c77;
+    border-color: #008c77;
+}
+
+.btn-default:active:focus {
+    color: #FFFFFF;
+    background-color: #008c77;
+    border-color: #008c77;
+}
+
+.delect > .btn-default {
+    background-color: #fb6e56;
+    border-color: #fb6e56;
+}
+
+.delect > .btn-default:hover {
+    background-color: #dd4228;
+    border-color: #dd4228;
+}
+
+.sb {
+    padding-top: 15px;
+    overflow-y: auto;
+    height: 680px;
+}
+
+.checknew {
+    float: left;
+    margin-left: 15px;
+    /*margin-top: 6px;*/
+    background-repeat: no-repeat;
+    background-position: 0px 10px;
+    cursor: pointer;
+}
+
+.gjc {
+    margin-top: 0px;
+    margin-bottom: 15px;
+    height: 50px;
+    padding-left: 26px;
+}
+
+.checkbox-custom {
+    position: relative;
+    padding: 0 0 0 25px;
+    margin-bottom: 7px;
+    margin-top: 0;
+}
+
+.zxys {
+    background-color: #fb6e56;
+    border-color: #fb6e56;
+}
+
+.zxys:hover {
+    background-color: #dd4228;
+    border-color: #dd4228;
+}
+
+.passwordType {
+    position: relative;
+}
+
+.passwordType .password {
+    width: 90% !important;
+}
+
+.passwordType .fa {
+    position: absolute;
+    right: 42px;
+    top: 6px;
+    font-size: 20px;
+    cursor: pointer;
+}

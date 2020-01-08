@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import org.jmqtt.common.helper.RemotingHelper;
+
 public class RemotingHelperTest {
 
     @Test

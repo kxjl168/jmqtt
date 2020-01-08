@@ -1,20 +1,21 @@
 package org.jmqtt.group.processor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jmqtt.common.bean.InvokeCallback;
+import org.jmqtt.common.bean.ResponseFuture;
 import org.jmqtt.common.config.ClusterConfig;
+import org.jmqtt.common.helper.RemotingHelper;
 import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.group.ClusterRemotingClient;
 import org.jmqtt.group.common.ClusterNodeManager;
-import org.jmqtt.group.common.InvokeCallback;
-import org.jmqtt.group.common.ResponseFuture;
+import org.jmqtt.group.common.ClusterResponseFuture;
 import org.jmqtt.group.protocol.ClusterRemotingCommand;
 import org.jmqtt.group.protocol.ClusterRequestCode;
 import org.jmqtt.group.protocol.CommandConstant;
 import org.jmqtt.group.protocol.node.ServerNode;
 import org.jmqtt.remoting.session.ConnectManager;
-import org.jmqtt.remoting.util.RemotingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class ClusterOuterAPI {
 	private ScheduledThreadPoolExecutor scheduleRegisterNode;
 	private ScheduledThreadPoolExecutor scheduleScanNode;
 	private long timeoutMillis;
-	private static final int NODE_ACTIVE_TIME_MILLIS = 30000;
+	private static final int NODE_ACTIVE_TIME_MILLIS = 15000;
 
 	public ClusterOuterAPI(ClusterConfig clusterConfig, ClusterRemotingClient clusterRemotingClient) {
 		this.clusterConfig = clusterConfig;
@@ -56,14 +57,14 @@ public class ClusterOuterAPI {
 		}
 		String addr = currentIp + ":" + clusterConfig.getGroupServerPort();
 		ServerNode currentNode = new ServerNode(clusterConfig.getNodeName(), addr);
-		
-		//zj 自身激活
+
+		// zj 自身激活
 		currentNode.setActive(true);
-		
+		currentNode.setOnlinenums(0L);
+
 		ClusterNodeManager.getInstance().setCurrentNode(currentNode);
 		ClusterNodeManager.getInstance().putNewNode(currentNode);
-		
-		
+
 		if (StringUtils.isEmpty(clusterConfig.getGroupNodes())) {
 			log.info("there is no other nodes to connect");
 		} else {
@@ -79,37 +80,36 @@ public class ClusterOuterAPI {
 					scanClusterNodes();
 				}
 			}, 15 * 1000, (int) (NODE_ACTIVE_TIME_MILLIS * 1.5), TimeUnit.MILLISECONDS);
-			
-			
+
 		}
 	}
 
 	private void scanClusterNodes() {
 		Set<ServerNode> nodes = ClusterNodeManager.getInstance().getAllNodes();
-		
-		ConnectManager.getInstance(). printAllSession();
+
+		ConnectManager.getInstance().printAllSession();
 		for (ServerNode node : nodes) {
-			
-			
-			
+
 			long diff = System.currentTimeMillis() - node.getLastUpdateTime();
 			if (diff < NODE_ACTIVE_TIME_MILLIS * 1.5) {
 				continue;
 			}
 			node.setActive(false);
+			ClusterNodeManager.getInstance().putNewNode(node);
+
 			log.info(" *****nodeName={},nodeAddr={} change to not active****", node.getNodeName(), node.getAddr());
-			if (diff > NODE_ACTIVE_TIME_MILLIS * 2) {
+			if (diff > NODE_ACTIVE_TIME_MILLIS * 5) {
 				ClusterNodeManager.getInstance().removeNode(node.getNodeName());
 				log.info("remove not active node,nodeName={},nodeAddr={}", node.getNodeName(), node.getAddr());
 			}
 		}
-		String nodelist="";
-		
+		String nodelist = "";
+
 		nodes = ClusterNodeManager.getInstance().getAllNodes();
 		for (ServerNode node : nodes) {
-			nodelist+= node.getAddr()+"["+node.getNodeName()+"],";
+			nodelist += node.getAddr() + "[" + node.getNodeName() + "],";
 		}
-		log.debug("【cluster current connect nodes are {} 】: {}",nodes.size(), nodelist);
+		log.debug("【cluster current connect nodes are {} 】: {}", nodes.size(), nodelist);
 	}
 
 	/**
@@ -119,73 +119,88 @@ public class ClusterOuterAPI {
 	 * @date 2019年12月23日
 	 */
 	private void registerOwnAndFetchNode() {
-		
-		//zj
+
+		ServerNode curNode = ClusterNodeManager.getInstance().getCurrentNode();
+		// 本节点直接更新时间状态
+		curNode.setLastUpdateTime(System.currentTimeMillis());
+		curNode.setActive(true);// true?? zj 191212
+		curNode.setOnlinenums(ConnectManager.getInstance().getOnlineNums());
+		ServerNode prevNode = ClusterNodeManager.getInstance().putNewNode(curNode);
+
+		// zj
 		log.debug("===cluster FETCH_NODES ...====");
-		
+
 		Set<ServerNode> nodes = ClusterNodeManager.getInstance().getAllNodes();
 		ServerNode currentNode = ClusterNodeManager.getInstance().getCurrentNode();
-	
-		
-		
+
 		if (nodes != null && nodes.size() > 0) {
 			for (ServerNode remoteNode : nodes) {
 
-				log.debug("===to cluster instatnce  nodes: {} ====",remoteNode.getAddr());
+				if (remoteNode.getAddr().equals(ClusterNodeManager.getInstance().getCurrentNode().getAddr())) {
+					// 本节点直接更新时间状态
+
+				} else {
+					// 只向其他节点注册
+
+					log.debug("===to cluster instatnce  nodes: {} ====", remoteNode.getAddr());
+					ClusterRemotingCommand remotingCommand = new ClusterRemotingCommand(ClusterRequestCode.FETCH_NODES);
+					remotingCommand.setBody(SerializeHelper.serialize(currentNode));
+					// zj add
+					HashMap<String, String> extDatas = new HashMap<>();
+					extDatas.put(CommandConstant.TO_NODE_NAME, remoteNode.getNodeName());
+					extDatas.put(CommandConstant.TO_NODE_ADDRESS, remoteNode.getAddr());
+					remotingCommand.setExtField(extDatas);
+					// end
+
+					try {
+						this.clusterRemotingClient.invokeAsync(remoteNode.getAddr(), remotingCommand, timeoutMillis,
+								new FetchNodeCallback());
+					} catch (Exception ex) {
+						log.warn("register current node to other nodes failure,nodeName={},nodeAddr={},ex={}",
+								remoteNode.getNodeName(), remoteNode.getAddr(), ex);
+						ClusterNodeManager.getInstance().removeNode(remoteNode.getNodeName());
+					}
+				}
+			}
+			// return;
+		}
+		String[] nodesStr = clusterConfig.getGroupNodes().split(";");
+
+		for (String nodeAddr : nodesStr) {
+
+			boolean isFecth = false;
+			for (ServerNode remoteNode : nodes) {
+				if (remoteNode.getAddr().equals(nodeAddr)) {
+					isFecth = true;
+					break;
+				}
+			}
+			// 只发送本地节点未发送过的
+			if (isFecth)
+				continue;
+
+			if (nodeAddr.equals(ClusterNodeManager.getInstance().getCurrentNode().getAddr())) {
+				// 本节点不做处理
+			} else {
+
+				log.debug("===to config nodes: {} ", nodeAddr);
+
 				ClusterRemotingCommand remotingCommand = new ClusterRemotingCommand(ClusterRequestCode.FETCH_NODES);
 				remotingCommand.setBody(SerializeHelper.serialize(currentNode));
+
 				// zj add
 				HashMap<String, String> extDatas = new HashMap<>();
-				extDatas.put(CommandConstant.TO_NODE_NAME, remoteNode.getNodeName());
-				extDatas.put(CommandConstant.TO_NODE_ADDRESS, remoteNode.getAddr());
+				extDatas.put(CommandConstant.TO_NODE_NAME, nodeAddr);
+				extDatas.put(CommandConstant.TO_NODE_ADDRESS, nodeAddr);
 				remotingCommand.setExtField(extDatas);
 				// end
 
 				try {
-					this.clusterRemotingClient.invokeAsync(remoteNode.getAddr(), remotingCommand, timeoutMillis,
+					this.clusterRemotingClient.invokeAsync(nodeAddr, remotingCommand, timeoutMillis,
 							new FetchNodeCallback());
 				} catch (Exception ex) {
-					log.warn("register current node to other nodes failure,nodeName={},nodeAddr={},ex={}",
-							remoteNode.getNodeName(), remoteNode.getAddr(), ex);
-					ClusterNodeManager.getInstance().removeNode(remoteNode.getNodeName());
+					log.warn("register current node to other nodes failure,nodeAddr={},ex={}", nodeAddr, ex);
 				}
-			}
-			//return;
-		}
-		String[] nodesStr = clusterConfig.getGroupNodes().split(";");
-	
-		for (String nodeAddr : nodesStr) {
-			
-			boolean isFecth=false;
-			for (ServerNode remoteNode : nodes) {
-				if(remoteNode.getAddr().equals(nodeAddr))
-				{
-					isFecth=true;
-					break;
-				}
-			}
-			//只发送本地节点未发送过的
-			if(isFecth)
-				continue;
-			
-			
-			log.debug("===to config nodes: {} ",nodeAddr);
-			
-			ClusterRemotingCommand remotingCommand = new ClusterRemotingCommand(ClusterRequestCode.FETCH_NODES);
-			remotingCommand.setBody(SerializeHelper.serialize(currentNode));
-			
-			// zj add
-			HashMap<String, String> extDatas = new HashMap<>();
-			extDatas.put(CommandConstant.TO_NODE_NAME, nodeAddr);
-			extDatas.put(CommandConstant.TO_NODE_ADDRESS, nodeAddr);
-			remotingCommand.setExtField(extDatas);
-			// end
-
-			try {
-				this.clusterRemotingClient.invokeAsync(nodeAddr, remotingCommand, timeoutMillis,
-						new FetchNodeCallback());
-			} catch (Exception ex) {
-				log.warn("register current node to other nodes failure,nodeAddr={},ex={}", nodeAddr, ex);
 			}
 		}
 
@@ -201,7 +216,8 @@ public class ClusterOuterAPI {
 	private class FetchNodeCallback implements InvokeCallback {
 		@Override
 		public void invokeComplete(ResponseFuture responseFuture) {
-			ClusterRemotingCommand responseCommand = responseFuture.getClusterRemotingCommand();
+			ClusterRemotingCommand responseCommand = ((ClusterResponseFuture) responseFuture)
+					.getClusterRemotingCommand();
 			if (responseCommand == null) {
 				log.warn("fetch nodes response command is null");
 				return;
@@ -209,18 +225,22 @@ public class ClusterOuterAPI {
 
 			log.debug("FetchNode Request Callback :{}", responseCommand);
 
+			ServerNode cunode = ClusterNodeManager.getInstance().getCurrentNode();
+
 			byte[] body = responseCommand.getBody();
 			List<ServerNode> nodeList = SerializeHelper.deserializeList(body, ServerNode.class);
 			if (nodeList != null && nodeList.size() > 0) {
 				for (ServerNode node : nodeList) {
-					node.setLastUpdateTime(System.currentTimeMillis());
-					node.setActive(true);// true?? zj 191212
-					ServerNode prevNode = ClusterNodeManager.getInstance().putNewNode(node);
-					/*
-					 * if (prevNode != null) {
-					 * log.debug("prev node is not null,nodeName:{},nodeAddr:{},nodeActive:{}",
-					 * prevNode.getNodeName(), prevNode.getAddr(), prevNode.isActive()); }
-					 */
+					if (!node.equals(cunode)) {
+						node.setLastUpdateTime(System.currentTimeMillis());
+						node.setActive(true);// true?? zj 191212
+						ServerNode prevNode = ClusterNodeManager.getInstance().putNewNode(node);
+						/*
+						 * if (prevNode != null) {
+						 * log.debug("prev node is not null,nodeName:{},nodeAddr:{},nodeActive:{}",
+						 * prevNode.getNodeName(), prevNode.getAddr(), prevNode.isActive()); }
+						 */
+					}
 				}
 			} else {
 				log.warn("fetch nodes is nil");

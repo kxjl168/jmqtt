@@ -23,12 +23,12 @@ import org.jmqtt.common.config.BrokerConfig;
 import org.jmqtt.common.config.NettyConfig;
 import org.jmqtt.common.helper.MixAll;
 import org.jmqtt.common.helper.Pair;
+import org.jmqtt.common.helper.RemotingHelper;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.remoting.RemotingService;
 import org.jmqtt.remoting.netty.codec.ByteBuf2WebSocketEncoder;
 import org.jmqtt.remoting.netty.codec.WebSocket2ByteBufDecoder;
-import org.jmqtt.remoting.util.RemotingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

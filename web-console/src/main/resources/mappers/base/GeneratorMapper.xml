@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ztgm.base.dao.GeneratorMapper">
+	<resultMap id="generator" type="com.ztgm.base.pojo.Generator">
+		<id column="table_name" property="tableName"></id>
+		<id column="table_comment" property="tableDisplayName"></id>
+		
+	</resultMap>
+
+	<select id="selectGeneratorList" resultMap="generator"
+		resultType="com.ztgm.base.pojo.Generator">
+		select table_name,table_comment
+		FROM information_schema.`TABLES`
+		where 1=1
+		and
+		table_schema=#{tableSchema}
+		<if test=" tableName !=null and tableName !='' ">
+			AND table_name like concat ('%',#{tableName},'%')
+		</if>
+	</select>
+
+
+	<select id="selectTableColList"
+		resultType="com.ztgm.base.pojo.AField">
+		select COLUMN_NAME sqlcolname,COLUMN_COMMENT displayName,DATA_TYPE colType
+		from
+		information_schema.`COLUMNS` c where 1=1
+		and
+		TABLE_SCHEMA=#{tableSchema}
+		and COLUMN_KEY!='PRI'
+
+		<if test=" tableName !=null and tableName !='' ">
+			AND table_name =#{tableName}
+		</if>
+	</select>
+
+
+
+</mapper>

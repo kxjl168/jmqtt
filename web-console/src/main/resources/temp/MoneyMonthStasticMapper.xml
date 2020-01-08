@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crsud.yamanageadd.dao.MoneyMonthStasticMapper">
+  <resultMap id="BaseResultMap" type="com.crsud.yamanageadd.pojo.MoneyMonthStastic">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="dayTime" jdbcType="VARCHAR" property="dayTime" />
+    <result column="moneyType" jdbcType="VARCHAR" property="moneyType" />
+    <result column="num" jdbcType="DECIMAL" property="num" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, dayTime, moneyType, num
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from money_month_stastic
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from money_month_stastic
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.crsud.yamanageadd.pojo.MoneyMonthStastic">
+    insert into money_month_stastic (id, dayTime, moneyType, 
+      num)
+    values (#{id,jdbcType=VARCHAR}, #{dayTime,jdbcType=VARCHAR}, #{moneyType,jdbcType=VARCHAR}, 
+      #{num,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.crsud.yamanageadd.pojo.MoneyMonthStastic">
+    insert into money_month_stastic
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="dayTime != null">
+        dayTime,
+      </if>
+      <if test="moneyType != null">
+        moneyType,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="dayTime != null">
+        #{dayTime,jdbcType=VARCHAR},
+      </if>
+      <if test="moneyType != null">
+        #{moneyType,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.crsud.yamanageadd.pojo.MoneyMonthStastic">
+    update money_month_stastic
+    <set>
+      <if test="dayTime != null">
+        dayTime = #{dayTime,jdbcType=VARCHAR},
+      </if>
+      <if test="moneyType != null">
+        moneyType = #{moneyType,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.crsud.yamanageadd.pojo.MoneyMonthStastic">
+    update money_month_stastic
+    set dayTime = #{dayTime,jdbcType=VARCHAR},
+      moneyType = #{moneyType,jdbcType=VARCHAR},
+      num = #{num,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="com.crsud.yamanageadd.pojo.MoneyMonthStastic">
+	select
+	<include refid="Base_Column_List" />
+	from money_month_stastic c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = #{id}
+	</if>
+	
+		
+		<if test=" dayTime !=null and dayTime !='' ">
+		and c.dayTime like concat ('%', #{dayTime},'%')
+	</if>
+		
+			
+		
+		<if test=" moneyType !=null and moneyType !='' ">
+		and c.moneyType like concat ('%', #{moneyType},'%')
+	</if>
+		
+			
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="com.crsud.yamanageadd.pojo.MoneyMonthStastic">
+	delete from money_month_stastic
+
+	where id = #{id,jdbcType=VARCHAR}
+
+</delete>
+
+</mapper>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.demo.dao.MallDeliveryAddressMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.demo.pojo.MallDeliveryAddress">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="receiver" jdbcType="VARCHAR" property="receiver" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="is_default" jdbcType="INTEGER" property="isDefault" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="province_city" jdbcType="VARCHAR" property="provinceCity" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, receiver, phone, address, is_default, state, province_city
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from mall_delivery_address
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from mall_delivery_address
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.demo.pojo.MallDeliveryAddress">
+    insert into mall_delivery_address (id, user_id, receiver, 
+      phone, address, is_default, 
+      state, province_city)
+    values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
+      #{phone,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{isDefault,jdbcType=INTEGER}, 
+      #{state,jdbcType=INTEGER}, #{provinceCity,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.demo.pojo.MallDeliveryAddress">
+    insert into mall_delivery_address
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="receiver != null">
+        receiver,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="isDefault != null">
+        is_default,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="provinceCity != null">
+        province_city,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiver != null">
+        #{receiver,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isDefault != null">
+        #{isDefault,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="provinceCity != null">
+        #{provinceCity,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.demo.pojo.MallDeliveryAddress">
+    update mall_delivery_address
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="receiver != null">
+        receiver = #{receiver,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isDefault != null">
+        is_default = #{isDefault,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="provinceCity != null">
+        province_city = #{provinceCity,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.demo.pojo.MallDeliveryAddress">
+    update mall_delivery_address
+    set user_id = #{userId,jdbcType=VARCHAR},
+      receiver = #{receiver,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      is_default = #{isDefault,jdbcType=INTEGER},
+      state = #{state,jdbcType=INTEGER},
+      province_city = #{provinceCity,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="com.ztgm.demo.pojo.MallDeliveryAddress">
+	select
+	<include refid="Base_Column_List" />
+	from mall_delivery_address c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = #{id}
+	</if>
+	
+		
+		<if test=" userId !=null and userId !='' ">
+		and c.user_id like concat ('%', #{userId},'%')
+	</if>
+		
+			
+		
+		<if test=" receiver !=null and receiver !='' ">
+		and c.receiver like concat ('%', #{receiver},'%')
+	</if>
+		
+			
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="com.ztgm.demo.pojo.MallDeliveryAddress">
+	delete from mall_delivery_address
+
+	where id = #{id,jdbcType=VARCHAR}
+
+</delete>
+
+</mapper>

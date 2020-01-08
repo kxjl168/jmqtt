@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.base.dao.RoleMapper">
+	<resultMap id="BaseResultMap" type="com.ztgm.base.pojo.Role">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="available" jdbcType="CHAR" property="available" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, name, available
+	</sql>
+
+
+
+	<select id="selectRoleByManager"
+            parameterType="com.ztgm.base.pojo.Manager" resultMap="BaseResultMap">
+		
+		SELECT t1. sys_role_id id,t1.sys_user_id,t2.name FROM sys_user_role
+		t1,sys_role t2 WHERE t1.sys_role_id=t2.id AND t2.available=1
+		AND t1.sys_user_id=#{id}
+
+
+	</select>
+
+
+	<select id="selectManagerByRole"
+           resultType="java.util.Map">
+		
+	select m.*,sr.sys_role_id from manager m left join sys_user_role sr on m.ID=sr.sys_user_id
+where sys_role_id=#{roleId}
+	</select>
+
+
+
+
+	<select id="selectRoleList"
+            parameterType="com.ztgm.base.pojo.Role" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from sys_role
+		where 1=1
+		<if test="name != null and name !='' ">
+			and name like concat('%',#{name},'%')
+		</if>
+		<if test="available != null and available !='' ">
+			and available=#{available}
+		</if>
+
+	</select>
+
+
+
+	<select id="selectByName" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from sys_role
+		where name = #{name,jdbcType=VARCHAR}
+	</select>
+
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from sys_role
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from sys_role
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert" parameterType="com.ztgm.base.pojo.Role">
+		insert into sys_role (id, name, available
+		)
+		values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+		#{available,jdbcType=CHAR}
+		)
+	</insert>
+	<insert id="insertSelective"
+		parameterType="com.ztgm.base.pojo.Role">
+		insert into sys_role
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="available != null">
+				available,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="available != null">
+				#{available,jdbcType=CHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.ztgm.base.pojo.Role">
+		update sys_role
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="available != null">
+				available = #{available,jdbcType=CHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByPrimaryKey"
+		parameterType="com.ztgm.base.pojo.Role">
+		update sys_role
+		set name = #{name,jdbcType=VARCHAR},
+		available = #{available,jdbcType=CHAR}
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<select id="selectRoleByManagerId" resultType="java.util.HashMap">
+		SELECT t1.id,sys_user_id,sys_role_id,t2.name
+		FROM sys_user_role t1, sys_role t2
+		WHERE t1.sys_role_id=t2.id AND t2.available=1 AND
+		sys_user_id=#{userId}
+	</select>
+
+	<select id="selectRoleByConditions"
+		parameterType="java.util.Map" resultType="java.util.HashMap">
+		SELECT *
+		FROM sys_role
+		WHERE 1=1
+		<if test="id!=null">
+			AND id = #{id}
+		</if>
+		<if test="name!=null">
+			AND name = #{name }
+		</if>
+		AND available=1
+
+
+
+	</select>
+</mapper>

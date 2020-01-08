@@ -4,13 +4,16 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+
+import org.jmqtt.common.bean.InvokeCallback;
+import org.jmqtt.common.bean.ResponseFuture;
+import org.jmqtt.common.bean.SemaphoreReleaseOnlyOnce;
 import org.jmqtt.common.helper.MixAll;
 import org.jmqtt.common.helper.Pair;
+import org.jmqtt.common.helper.RemotingHelper;
 import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.log.LoggerName;
-import org.jmqtt.group.common.InvokeCallback;
-import org.jmqtt.group.common.ResponseFuture;
-import org.jmqtt.group.common.SemaphoreReleaseOnlyOnce;
+import org.jmqtt.group.common.ClusterResponseFuture;
 import org.jmqtt.group.processor.ClusterRequestProcessor;
 import org.jmqtt.group.protocol.ClusterRemotingCommand;
 import org.jmqtt.group.protocol.ClusterRequestCode;
@@ -19,7 +22,6 @@ import org.jmqtt.group.protocol.CommandConstant;
 import org.jmqtt.group.protocol.MessageFlag;
 import org.jmqtt.group.protocol.node.ServerNode;
 import org.jmqtt.remoting.exception.RemotingSendRequestException;
-import org.jmqtt.remoting.util.RemotingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +113,7 @@ public abstract class AbstractNettyCluster {
 		final int opaque = command.getOpaque();
 		try {
 			SemaphoreReleaseOnlyOnce semaphoreReleaseOnlyOnce = new SemaphoreReleaseOnlyOnce(semaphore);
-			ResponseFuture responseFuture = new ResponseFuture(channel, opaque, timeout, invokeCallback,
+			ClusterResponseFuture responseFuture = new ClusterResponseFuture(channel, opaque, timeout, invokeCallback,
 					semaphoreReleaseOnlyOnce);
 			responseFuture.setClusterRemotingCommand(command);
 			boolean tryAquired = semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
@@ -222,7 +224,7 @@ public abstract class AbstractNettyCluster {
 		final int rcode = cmd.getResponseCode();// zj modify
 		// response failure , resend later
 		if (rcode == ClusterResponseCode.RESPONSE_OK) {
-			final ResponseFuture responseFuture = responseTable.get(opaque);
+			final ClusterResponseFuture responseFuture = (ClusterResponseFuture)responseTable.get(opaque);
 			if (responseFuture != null) {
 				log.info("cluster receive response future, data {}.", cmd);
 				responseFuture.setClusterRemotingCommand(cmd);
@@ -276,7 +278,7 @@ public abstract class AbstractNettyCluster {
 		if (responseFuture == null)
 			return;
 
-		ClusterRemotingCommand command = responseFuture.getClusterRemotingCommand();
+		ClusterRemotingCommand command =( (ClusterResponseFuture)responseFuture).getClusterRemotingCommand();
 
 		// zj 191213 add
 		if (command.getCode() == ClusterRequestCode.FETCH_NODES) {
