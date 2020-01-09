@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jmqtt.common.bean.InvokeCallback;
 import org.jmqtt.common.bean.ResponseFuture;
 import org.jmqtt.common.config.ClusterConfig;
+import org.jmqtt.common.config.WebConfig;
 import org.jmqtt.common.helper.RemotingHelper;
 import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
@@ -40,14 +41,17 @@ public class ClusterOuterAPI {
 	private ScheduledThreadPoolExecutor scheduleScanNode;
 	private long timeoutMillis;
 	private static final int NODE_ACTIVE_TIME_MILLIS = 15000;
+	
+	private WebConfig webConfig;
 
-	public ClusterOuterAPI(ClusterConfig clusterConfig, ClusterRemotingClient clusterRemotingClient) {
+	public ClusterOuterAPI(ClusterConfig clusterConfig, ClusterRemotingClient clusterRemotingClient,WebConfig webConfig) {
 		this.clusterConfig = clusterConfig;
 		this.clusterRemotingClient = clusterRemotingClient;
 		this.scheduleRegisterNode = new ScheduledThreadPoolExecutor(1,
 				new ThreadFactoryImpl("scheduleRegisterNodeThread"));
 		this.scheduleScanNode = new ScheduledThreadPoolExecutor(1, new ThreadFactoryImpl("scheduleScanNodeThread"));
 		this.timeoutMillis = clusterConfig.getTimeoutMills();
+		this.webConfig=webConfig;
 	}
 
 	public void start() {
@@ -61,6 +65,7 @@ public class ClusterOuterAPI {
 		// zj 自身激活
 		currentNode.setActive(true);
 		currentNode.setOnlinenums(0L);
+		currentNode.setWebaddr( currentIp + ":" +webConfig.getWebServerPort());
 
 		ClusterNodeManager.getInstance().setCurrentNode(currentNode);
 		ClusterNodeManager.getInstance().putNewNode(currentNode);

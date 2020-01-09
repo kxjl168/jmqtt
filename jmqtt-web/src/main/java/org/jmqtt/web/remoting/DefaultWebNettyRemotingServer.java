@@ -13,6 +13,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.jmqtt.common.config.BrokerConfig;
 import org.jmqtt.common.config.ClusterConfig;
 import org.jmqtt.common.config.NettyConfig;
+import org.jmqtt.common.config.RuleConfig;
 import org.jmqtt.common.config.StoreConfig;
 import org.jmqtt.common.config.WebConfig;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
@@ -22,9 +23,12 @@ import org.jmqtt.remoting.netty.NettyEventExcutor;
 import org.jmqtt.web.common.WebRemotingCommand;
 import org.jmqtt.web.common.WebRequestCode;
 import org.jmqtt.rule.processor.RuleEngin;
+import org.jmqtt.store.SubscriptionStore;
 import org.jmqtt.web.processor.WebRequestProcessor;
 import org.jmqtt.web.processor.impl.DefaultEnginRuleChangeProcessor;
 import org.jmqtt.web.processor.impl.DefaultGroupProcessor;
+import org.jmqtt.web.processor.impl.DefaultNodeConfigProcessor;
+import org.jmqtt.web.processor.impl.DefaultTopicProcessor;
 import org.jmqtt.web.codec.NettyWebDecoder;
 import org.jmqtt.web.codec.NettyWebEncoder;
 import org.slf4j.Logger;
@@ -62,6 +66,7 @@ public class DefaultWebNettyRemotingServer extends AbstractNettyServer implement
 
 	public DefaultWebNettyRemotingServer(RuleEngin ruleEngin, WebConfig wConfig, BrokerConfig brokerConfig,
 			NettyConfig nettyConfig, StoreConfig storeConfig, ClusterConfig clusterConfig,
+			RuleConfig ruleConfig, SubscriptionStore subScriptionStore,
 			ExecutorService executorService) {
 		this.webConfig = wConfig;
 		// if(!clusterConfig.isGroupUseEpoll()){
@@ -85,6 +90,10 @@ public class DefaultWebNettyRemotingServer extends AbstractNettyServer implement
 		this.storeConfig = storeConfig;
 		this.clusterConfig = clusterConfig;
 		this.ruleEngin = ruleEngin;
+		this.webConfig=wConfig;
+		this.ruleConfig=ruleConfig;
+		
+		this.subScriptionStore=subScriptionStore;
 
 		registerDefaultProcessor(executorService);
 	}
@@ -100,7 +109,14 @@ public class DefaultWebNettyRemotingServer extends AbstractNettyServer implement
 		registerWebProcessor(WebRequestCode.SAVE_OR_UPDATE_RULE, ruleProcessor, executorService);
 		
 		DefaultGroupProcessor groupProcessor = new DefaultGroupProcessor();
-		registerWebProcessor(WebRequestCode.QUERY_NODE_STATUS, groupProcessor, executorService);
+		registerWebProcessor(WebRequestCode.QUERY_NODES_STATUS, groupProcessor, executorService);
+		
+		DefaultNodeConfigProcessor ndConfigProcessor = new DefaultNodeConfigProcessor( brokerConfig,  clusterConfig,  nettyConfig,
+				 ruleConfig,  storeConfig,  webConfig);
+		registerWebProcessor(WebRequestCode.QUERY_NODE_CONFIG, ndConfigProcessor, executorService);
+		
+		DefaultTopicProcessor topicProcessor = new DefaultTopicProcessor(subScriptionStore);
+		registerWebProcessor(WebRequestCode.QUERY_NODE_TOPICS, topicProcessor, executorService);
 	}
 
 	@Override

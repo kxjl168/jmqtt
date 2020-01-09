@@ -79,18 +79,7 @@
 										</div>
 									</div>
 									
-									<script>
-                            $(function() {
-						$("#refreshTime").datetimepicker({
-							 format: 'yyyy-mm-dd hh:ii:ss',
-							 language: 'zh-CN',
-							 autoclose:true,
-						        startDate:new Date()
-						});
-						 $("#refreshTime").data('datetimepicker')
-						 .setDate('2020-1-6 13:51:43');
-                            });
-                            </script>
+								
 									<div class="form-group">
 										<label for="name" class="col-lg-3 control-label">在线用户数</label>
 
@@ -141,3 +130,68 @@
 		</div>
 	</div>
 </div>
+
+
+
+<div class="modal fade" data-backdrop="static" id="myModal_item2"
+	tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+	aria-hidden="true" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">&times;</button>
+				
+				
+				<h4 class="modal-title" id="myModal_itemLabel">
+					<span id="myModal_item_title">节点信息</span>
+				</h4>
+
+			</div>
+
+			<form id="mform_item2" name="mform_item2" class="form-horizontal"
+				role="form" action="" method="post">
+
+				<div class="modal-body">
+					<div class="row">
+
+						<div class="col-lg-12">
+
+							<div class="form-group">
+										<label for="name" class="hide col-lg-3 control-label">平台名称</label>
+
+										<div class="col-lg-12">
+										<textarea type="text" readonly="readonly" name="configtxt" rows="20" 
+											
+											class="form-control col-xs-12" id="configtxt"
+												placeholder="" ></textarea>
+											<p class="help-block"></p>
+										</div>
+									</div>
+
+
+
+
+
+
+
+
+
+
+
+						</div>
+
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"
+						id="close">关闭</button>
+					
+				</div>
+			</form>
+
+
+		</div>
+	</div>
+</div>
+

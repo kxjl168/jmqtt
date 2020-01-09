@@ -25,7 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.MqttMessage;
 
 /**
- * 处理web服务器下发的集群指令刷新规则数据指令
+ * 处理web服务器下发的查询所有节点状态指令
  * DefaultEnginRuleChangeProcessor.java.
  * 
  * @author zj

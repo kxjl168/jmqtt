@@ -191,7 +191,7 @@ public class BrokerController {
             MessageTransfer messageTransfer = new DefaultMessageTransfer(this.clusterClient,this.clusterServer);
             this.innerMessageTransfer = new InnerMessageTransfer(this,messageTransfer);
         }
-        this.clusterOuterAPI = new ClusterOuterAPI(clusterConfig, clusterClient);
+        this.clusterOuterAPI = new ClusterOuterAPI(clusterConfig, clusterClient,webConfig);
         this.clusterService = new ThreadPoolExecutor(coreThreadNum * 2,
                 coreThreadNum * 2,
                 60000,
@@ -218,7 +218,8 @@ public class BrokerController {
                 new ThreadFactoryImpl("WebThread"),
                 new RejectHandler("sub", 100000));
         //zj
-        this.webRemotingServer=new DefaultWebNettyRemotingServer(ruleEngin, webConfig, brokerConfig, nettyConfig, storeConfig, clusterConfig, webExecutorService);
+        this.webRemotingServer=new DefaultWebNettyRemotingServer(ruleEngin, webConfig, brokerConfig, nettyConfig, storeConfig, clusterConfig, 
+        	ruleConfig,subscriptionStore,	 webExecutorService);
         
     }
 

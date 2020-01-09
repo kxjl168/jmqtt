@@ -155,40 +155,7 @@ public class NettyWebRemotingClient implements WebNettyClient {
 		}
 	}
 
-	/**
-	 * 请求类型转换
-	 * 
-	 * @param requestcode
-	 * @return
-	 * @author zj
-	 * @date 2019年12月13日
-	 */
-	private String getRequestType(int requestcode) {
-		String requestTypeName = "NULL";
-		switch (requestcode) {
-		case WebRequestCode.SAVE_OR_UPDATE_RULE:
-			requestTypeName = "SAVE_OR_UPDATE_RULE";
-			break;
-		case WebRequestCode.QUERY_TOPICS:
-			requestTypeName = "QUERY_TOPICS";
-			break;
-		case WebRequestCode.QUERY_NODE_CONFIG:
-			requestTypeName = "QUERY_NODE_CONFIG";
-			break;
-		case WebRequestCode.QUERY_NODE_STATUS:
-			requestTypeName = "QUERY_NODE_STATUS";
-			break;
-		case WebRequestCode.QUERY_ONLINE_DATA:
-			requestTypeName = "QUERY_ONLINE_DATA";
-			break;
-
-		default:
-			break;
-		}
-
-		return requestTypeName;
-
-	}
+	
 
 	private void invokeAsyncImpl(boolean isAsync,final Channel channel, final WebRemotingCommand command, final long timeout,
 			InvokeCallback invokeCallback) throws RemotingSendRequestException {
@@ -208,7 +175,7 @@ public class NettyWebRemotingClient implements WebNettyClient {
 				// zj
 				log.debug("****web inner request begin***  opaque :{}, dest:{},requestType:{},chnnel:{}",
 						String.valueOf(opaque), remotingAddr,
-						command.getCode() + ":" + getRequestType(command.getCode()), channel.toString());
+						command.getCode() + ":" + WebRequestCode.getRequestType(command.getCode()), channel.toString());
 
 				ChannelFuture cfuture= channel.writeAndFlush(command);
 				cfuture.addListener(new ChannelFutureListener() {
@@ -303,10 +270,10 @@ public class NettyWebRemotingClient implements WebNettyClient {
 				responseFuture.release();
 			} else {
 				log.warn("web receive not exist response future, code={}, opaque={}.",
-						code + ":" + getRequestType(code), opaque);
+						code + ":" + WebRequestCode.getRequestType(code), opaque);
 			}
 		} else {
-			log.warn("receive response is error,response code={}", code + ":" + getRequestType(code));
+			log.warn("receive response is error,response code={}", code + ":" + WebRequestCode.getRequestType(code));
 		}
 
 		// zj add 清空原请求

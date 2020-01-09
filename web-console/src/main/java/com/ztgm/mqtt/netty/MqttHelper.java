@@ -29,6 +29,25 @@ public interface MqttHelper {
 	public List<MqttNode> getServerNodeList();
 	
 	
+	/**
+	 * 获取mqtt节点信息
+	 * @param ipport
+	 * @return
+	 * @author zj
+	 * @date 2020年1月8日
+	 */
+	public String getServerNodeConfig(String ipport);
+	
+	/**
+	 * 获取mqtt节点topic列表
+	 * @param ipport
+	 * @return
+	 * @author zj
+	 * @date 2020年1月8日
+	 */
+	public List<String> getServerTopics(String ipport);
+	
+	
 	
 	/**
 	 * 通知节点刷新rule

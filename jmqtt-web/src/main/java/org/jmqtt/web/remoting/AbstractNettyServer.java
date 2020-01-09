@@ -8,7 +8,9 @@ import io.netty.channel.ChannelHandlerContext;
 import org.jmqtt.common.config.BrokerConfig;
 import org.jmqtt.common.config.ClusterConfig;
 import org.jmqtt.common.config.NettyConfig;
+import org.jmqtt.common.config.RuleConfig;
 import org.jmqtt.common.config.StoreConfig;
+import org.jmqtt.common.config.WebConfig;
 import org.jmqtt.common.helper.MixAll;
 import org.jmqtt.common.helper.Pair;
 import org.jmqtt.common.helper.RemotingHelper;
@@ -21,6 +23,7 @@ import org.jmqtt.web.common.WebRemotingCommand;
 import org.jmqtt.web.common.WebRequestCode;
 import org.jmqtt.web.common.WebResponseCode;
 import org.jmqtt.rule.processor.RuleEngin;
+import org.jmqtt.store.SubscriptionStore;
 import org.jmqtt.web.processor.WebRequestProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,9 @@ public abstract class AbstractNettyServer {
 	protected NettyConfig nettyConfig;
 	protected StoreConfig storeConfig;
 	protected ClusterConfig clusterConfig;
+	protected RuleConfig ruleConfig;
+	protected WebConfig webConfig;
+	protected SubscriptionStore subScriptionStore;
 
 	/**
 	 * Semaphore to limit maximum number of on-going asynchronous requests, which
@@ -59,41 +65,7 @@ public abstract class AbstractNettyServer {
 		this.semaphore = new Semaphore(semaphore, true);
 	}
 
-	/**
-	 * 请求类型转换
-	 * 
-	 * @param requestcode
-	 * @return
-	 * @author zj
-	 * @date 2019年12月13日
-	 */
-	private String getRequestType(int requestcode) {
-		String requestTypeName = "NULL";
-		switch (requestcode) {
-		case WebRequestCode.SAVE_OR_UPDATE_RULE:
-			requestTypeName = "SAVE_OR_UPDATE_RULE";
-			break;
-		case WebRequestCode.QUERY_TOPICS:
-			requestTypeName = "QUERY_TOPICS";
-			break;
-		case WebRequestCode.QUERY_NODE_CONFIG:
-			requestTypeName = "QUERY_NODE_CONFIG";
-			break;
-		case WebRequestCode.QUERY_NODE_STATUS:
-			requestTypeName = "QUERY_NODE_STATUS";
-			break;
-		case WebRequestCode.QUERY_ONLINE_DATA:
-			requestTypeName = "QUERY_ONLINE_DATA";
-			break;
-
-		default:
-			break;
-		}
-
-		return requestTypeName;
-
-	}
-
+	
 	protected void processMessageReceived(ChannelHandlerContext ctx, WebRemotingCommand cmd) {
 		if (cmd != null) {
 
@@ -127,7 +99,7 @@ public abstract class AbstractNettyServer {
 				public void run() {
 
 					log.debug("****web  request arrived ***  opaque :{},requestType:{}, fromNode:{} ", opaque,
-							code + ":" + getRequestType(code), fromnode);
+							code + ":" + WebRequestCode. getRequestType(code), fromnode);
 
 					final WebRemotingCommand responseCommand = pair.getObject1().processRequest(ctx, cmd);
 					if (responseCommand != null) {

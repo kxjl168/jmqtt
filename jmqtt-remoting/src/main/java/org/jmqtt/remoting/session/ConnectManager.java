@@ -1,6 +1,7 @@
 package org.jmqtt.remoting.session;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jmqtt.common.log.LoggerName;
@@ -34,6 +35,16 @@ public class ConnectManager {
 			return this.clientUserNameCache.put(clientId, userName);
 		else
 			return "";
+	}
+	
+	/**
+	 * 当前节点总在线节点clinetIds
+	 * @return
+	 * @author zj
+	 * @date 2020年1月8日
+	 */
+	public Set<String> getOnlineClinetIds() {
+		return clientCache.keySet();
 	}
 	
 	/**

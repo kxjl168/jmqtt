@@ -13,7 +13,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.pagehelper.Page;
 import com.ztgm.base.aopAspect.FunLogType;
 import com.ztgm.base.aopAspect.ManagerActionLog;
+import com.ztgm.base.aopAspect.NoNeedAuthorization;
 import com.ztgm.base.base.PageCondition;
+import com.ztgm.base.util.AppResult;
+import com.ztgm.base.util.AppResultUtil;
 import com.ztgm.base.util.DateUtil;
 import com.ztgm.base.util.Message;
 import com.ztgm.base.util.PageUtil;
@@ -21,12 +24,14 @@ import com.ztgm.mqtt.dao.MqttNodeMapper;
 import com.ztgm.mqtt.netty.MqttHelper;
 import com.ztgm.mqtt.netty.NettyWebRemotingClient;
 import com.ztgm.mqtt.pojo.MqttNode;
+import com.ztgm.mqtt.pojo.MqttRule;
 import com.ztgm.mqtt.service.MqttNodeService;
 
 import net.sf.json.JSONObject;
 
 import org.jmqtt.common.bean.InvokeCallback;
 import org.jmqtt.common.bean.ResponseFuture;
+import org.jmqtt.common.bean.ZRule;
 import org.jmqtt.common.helper.SerializeHelper;
 
 import org.jmqtt.group.protocol.node.ServerNode;
@@ -76,6 +81,32 @@ public class MqttNodeController {
 
 	@Autowired
 	MqttHelper mqttHelper;
+
+	@RequestMapping("/nodeconfiginfo")
+	@NoNeedAuthorization
+	@ResponseBody
+	public AppResult nodeconfiginfo(ServerNode item, HttpServletRequest request, PageCondition pageCondition) {
+
+		AppResult rst = AppResultUtil.fail();
+		List<ZRule> rstrule = new ArrayList<>();
+
+		String config = mqttHelper.getServerNodeConfig(item.getWebaddr());
+		rst = AppResultUtil.success(config);
+		return rst;
+	}
+
+	@RequestMapping("/nodetopicinfo")
+	@NoNeedAuthorization
+	@ResponseBody
+	public AppResult nodetopicinfo(ServerNode item, HttpServletRequest request, PageCondition pageCondition) {
+
+		AppResult rst = AppResultUtil.fail();
+		List<ZRule> rstrule = new ArrayList<>();
+
+		List<String> topic = mqttHelper.getServerTopics(item.getWebaddr());
+		rst = AppResultUtil.success(topic);
+		return rst;
+	}
 
 	@RequestMapping("/mqttnodeList")
 	@ManagerActionLog(operateDescribe = "查询mqtt节点信息表", operateFuncType = FunLogType.Query, operateModelClassName = MqttNodeMapper.class)

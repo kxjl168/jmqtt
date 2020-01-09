@@ -23,11 +23,12 @@ public class DefalutMqttHelper implements MqttHelper {
 
 	@Autowired
 	NettyWebRemotingClient nettyWebClient;
-	
-	String serverIPPORT="192.168.100.41:29990";
+
+	String serverIPPORT = "192.168.100.41:29990";
+
 	public DefalutMqttHelper() {
-		//Config
-		serverIPPORT="192.168.100.126:39990";
+		// Config
+		serverIPPORT = "192.168.100.126:39990";
 	}
 
 	public List<MqttNode> getServerNodeList() {
@@ -35,7 +36,7 @@ public class DefalutMqttHelper implements MqttHelper {
 		final List<MqttNode> mqttnodes = new ArrayList<>();
 
 		WebRemotingCommand wcmd = new WebRemotingCommand();
-		wcmd.setCode(WebRequestCode.QUERY_NODE_STATUS);
+		wcmd.setCode(WebRequestCode.QUERY_NODES_STATUS);
 		try {
 			nettyWebClient.invoke(false, serverIPPORT, wcmd, 2000, new InvokeCallback() {
 
@@ -49,6 +50,7 @@ public class DefalutMqttHelper implements MqttHelper {
 						for (ServerNode node : nodes) {
 							MqttNode nd = new MqttNode();
 							nd.setIpPort(node.getAddr());
+							nd.setWebipPort(node.getWebaddr());
 							nd.setName(node.getNodeName());
 							nd.setStatus(node.isActive() ? "1" : "0");
 							nd.setOnlineUsers(String.valueOf(node.getOnlinenums()));
@@ -78,10 +80,10 @@ public class DefalutMqttHelper implements MqttHelper {
 	 * @author zj
 	 * @date 2020年1月8日
 	 */
-	public void notifyNodeToRefreshRules( String productKey) {
+	public void notifyNodeToRefreshRules(String productKey) {
 		WebRemotingCommand wcmd = new WebRemotingCommand();
 		wcmd.setCode(WebRequestCode.SAVE_OR_UPDATE_RULE);
-		
+
 		wcmd.setBody(productKey.getBytes());
 		try {
 			nettyWebClient.invoke(true, serverIPPORT, wcmd, 2000, new InvokeCallback() {
@@ -100,6 +102,73 @@ public class DefalutMqttHelper implements MqttHelper {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+
+	@Override
+	public String getServerNodeConfig(String ipport) {
+		final WebRemotingCommand wcmd = new WebRemotingCommand();
+		wcmd.setCode(WebRequestCode.QUERY_NODE_CONFIG);
+
+		String config = "";
+
+		try {
+			nettyWebClient.invoke(false, ipport, wcmd, 2000, new InvokeCallback() {
+
+				@Override
+				public void invokeComplete(ResponseFuture responseFuture) {
+
+					NettyWebResponseFuture future = (NettyWebResponseFuture) responseFuture;
+
+					byte[] data = future.getWebRemotingCommand().getBody();
+					if (data != null) {
+						wcmd.setBody(data);
+					}
+				}
+			});
+		} catch (RemotingConnectException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		config = SerializeHelper.deserialize(wcmd.getBody(), String.class);
+
+		return config;
+	}
+
+	@Override
+	public List<String> getServerTopics(String ipport) {
+		final WebRemotingCommand wcmd = new WebRemotingCommand();
+		wcmd.setCode(WebRequestCode.QUERY_NODE_TOPICS);
+
+		try {
+			nettyWebClient.invoke(false, ipport, wcmd, 2000, new InvokeCallback() {
+
+				@Override
+				public void invokeComplete(ResponseFuture responseFuture) {
+
+					NettyWebResponseFuture future = (NettyWebResponseFuture) responseFuture;
+					byte[] data = future.getWebRemotingCommand().getBody();
+					if (data != null) {
+						wcmd.setBody(data);
+					}
+				}
+			});
+		} catch (RemotingConnectException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		List<String> topics = new ArrayList<>();
+		topics = SerializeHelper.deserializeList(wcmd.getBody(), String.class);
+
+		return topics;
+
 	}
 
 }

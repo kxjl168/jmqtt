@@ -212,12 +212,17 @@ function InitQuery_item() {
 			},
 		 {
 				field : 'ipPort',
-				title : 'ip:port',
+				title : '集群端口',
 				align : 'center',
 				valign : 'middle',
-				   
-				
 			},
+			 {
+				field : 'webipPort',
+				title : 'WEB端口',
+				align : 'center',
+				valign : 'middle',
+			},
+			
 		 {
 				field : 'status',
 				title : '节点状态',
@@ -278,8 +283,13 @@ function InitQuery_item() {
 
 function modifyAndDeleteButton_item(value, row, index) {
 	return [ '<div class="">'
-			+ '<button id = "update" type = "button" class = "btn btn-info"><i class="glyphicon glyphicon-pencil">修改</i> </button>&nbsp;'
-			+ '<button id = "delete" type = "button" class = "btn btn-danger"><i class="glyphicon glyphicon-trash">删除</i> </button>'
+			//+ '<button id = "update" type = "button" class = "btn btn-info"><i class="glyphicon glyphicon-pencil">修改</i> </button>&nbsp;'
+			//+ '<button id = "delete" type = "button" class = "btn btn-danger"><i class="glyphicon glyphicon-trash">删除</i> </button>'
+		
+		+ '<button id = "info" type = "button" class = "btn btn-info"><i class="glyphicon glyphicon-info">节点信息</i> </button>&nbsp;'
+		+ '<button id = "topic" type = "button" class = "btn btn-warning"><i class="glyphicon glyphicon-info">节点Topic</i> </button>&nbsp;'
+		
+		
 			+ '</div>' ].join("");
 }
 
@@ -287,6 +297,53 @@ function modifyAndDeleteButton_item(value, row, index) {
 
 
 window.PersonnelInformationEvents_item = {
+		
+		"click #info" : function(e, value, row, index) {
+			$.ajax({
+				type : "post",
+				url :getRPath()+ '/manager/mqttnode/nodeconfiginfo',
+				data : {
+					webaddr : row.webipPort
+				},
+				async : false,
+				dataType : "json",
+				success : function(response) {
+					
+		     	   $("#configtxt").html(response.message);
+				   
+					$("#myModal_item2").modal();
+					
+				
+				}
+			});
+
+		},
+		"click #topic" : function(e, value, row, index) {
+			$.ajax({
+				type : "post",
+				url :getRPath()+ '/manager/mqttnode/nodetopicinfo',
+				data : {
+					webaddr : row.webipPort
+				},
+				async : false,
+				dataType : "json",
+				success : function(response) {
+					
+					var html="";
+					$.each(response.data,function(index,item){
+						html+=item+"\r\n";
+					})
+					
+		     	   $("#configtxt").html(html);
+				   
+					$("#myModal_item2").modal();
+					
+				
+				}
+			});
+
+		},
+		
 	"click #update" : function(e, value, row, index) {
 		$.ajax({
 			type : "post",

@@ -15,6 +15,8 @@ public class MqttNode {
      * 平台根url
      */
     private String ipPort;
+    
+    private String webipPort;
 
     /**
      * 上下线 1：上线，0 :离线
@@ -147,4 +149,12 @@ public class MqttNode {
     public void setConfiginfo(String configinfo) {
         this.configinfo = configinfo == null ? null : configinfo.trim();
     }
+
+	public String getWebipPort() {
+		return webipPort;
+	}
+
+	public void setWebipPort(String webipPort) {
+		this.webipPort = webipPort;
+	}
 }

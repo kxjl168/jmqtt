@@ -13,9 +13,16 @@ public class ServerNode {
 
 	private String nodeName;
 	/**
-	 * ip:port
+	 * ip:port,集群ipport
 	 */
 	private String addr;
+	
+	
+	/**
+	 * ip:port,web监听 ipport
+	 */
+	private String webaddr;
+	
 	private  long lastUpdateTime;
 	private  boolean active;
 	
@@ -88,5 +95,13 @@ public class ServerNode {
 
 	public void setOnlinenums(Long onlinenums) {
 		this.onlinenums = onlinenums;
+	}
+
+	public String getWebaddr() {
+		return webaddr;
+	}
+
+	public void setWebaddr(String webaddr) {
+		this.webaddr = webaddr;
 	}
 }
