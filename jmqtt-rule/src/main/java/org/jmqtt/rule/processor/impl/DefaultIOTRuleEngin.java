@@ -80,7 +80,7 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 
 	public DefaultIOTRuleEngin(int pollThreadNum, RuleMessageStore ruleMessageStore,
 			SubscriptionMatcher subscriptionMatcher, MessageDispatcher messageDispatcher,
-			ExecutorService executorService, RuleConfig ruleConfig,ClusterMessageTransfer clusterMessageTransfer) {
+			ExecutorService executorService, RuleConfig ruleConfig, ClusterMessageTransfer clusterMessageTransfer) {
 		this.pollThreadNum = pollThreadNum;
 
 		this.ruleMessageStore = ruleMessageStore;
@@ -89,12 +89,13 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 				new ThreadFactoryImpl("scheduleFetchRuleThread"));
 
 		this.ruleConfig = ruleConfig;
-		this.clusterMessageTransfer=clusterMessageTransfer;
-		
+		this.clusterMessageTransfer = clusterMessageTransfer;
+
 		this.defaultRuleDespatcher = new DefaultRuleDespatcher(10, subscriptionMatcher, messageDispatcher);
 
-		RuleResultProcessor mqttProcessor = new DefaultMqttRuleProcessor(messageDispatcher,clusterMessageTransfer);
+		RuleResultProcessor mqttProcessor = new DefaultMqttRuleProcessor(messageDispatcher, clusterMessageTransfer);
 		defaultRuleDespatcher.registerProcessor(RuleType.REPUBLISH, mqttProcessor, executorService);
+		defaultRuleDespatcher.registerProcessor(RuleType.ERROR, mqttProcessor, executorService);
 	}
 
 	private ThreadPoolExecutor pollThread;
@@ -134,21 +135,33 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 			}
 			// 通过Gson 格式化json str,引号之类的问题
 			Gson gs = new Gson();
-			JSONObject json = gs.fromJson(jsonStr, JSONObject.class);
-			if (json == null)
-				return false;
+			try {
 
-			// 基于Tranquil ANTLR4的sql语法解析，及json数据解析匹配过滤
-			Date startDate = new Date();
-			boolean isExist = Tranquil.parse(json).exists(zrule.getWhere());
-			Date endDate = new Date();
+				JSONObject json = gs.fromJson(jsonStr, JSONObject.class);
+				if (json == null)
+					return false;
 
-			log.debug("Rule[Tranquil-ANTLR4] Paring using time {} ms ,with data :{} where:{}  ",
-					endDate.getTime() - startDate.getTime(), json, zrule.getWhere());
-			if (!isExist)
+				// 基于Tranquil ANTLR4的sql语法解析，及json数据解析匹配过滤
+				Date startDate = new Date();
+				boolean isExist = Tranquil.parse(json).exists(zrule.getWhere());
+				Date endDate = new Date();
+
+				log.debug("Rule[Tranquil-ANTLR4] Paring using time {} ms ,with data :{} where:{}  ",
+						endDate.getTime() - startDate.getTime(), json, zrule.getWhere());
+				if (!isExist)
+					return false;
+				else
+					return true;
+
+			} catch (Exception e) {
+
+				// TODO 记录规则引擎错误信息
+				log.debug("rule 过滤错误:" + e.getMessage());
+
+				transforError(zrule, msg, e.getMessage());
+
 				return false;
-			else
-				return true;
+			}
 			/*
 			 * // rule // zrule.getWhere().sp // TODO where 解析 String field = "data"; String
 			 * action = ">"; int fieldData = 5;
@@ -190,7 +203,10 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 
 			List<RuleDest> types = parseRuleType(zrule.getConfiguration());
 			for (RuleDest rtype : types) {
-
+				
+				//正常过滤不转发错误数据
+				if (rtype.getRtype() == RuleType.ERROR) 
+					continue;
 				// 生成目标处理数据
 				ZRuleCommand rcommand = new ZRuleCommand();
 				rcommand.setConfiguration(rtype.getConfiguration());
@@ -206,6 +222,37 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 		}).build();
 
 		return rule;
+	}
+
+	/**
+	 * 规则引擎解析错误转发，如果规则引擎配置了错误转发
+	 * 
+	 * @param zrule
+	 * @param orimsg
+	 * @param errormsg
+	 * @author zj
+	 * @date 2020年1月17日
+	 */
+	private void transforError(ZRule zrule, Message orimsg, String errormsg) {
+		List<RuleDest> types = parseRuleType(zrule.getConfiguration());
+		for (RuleDest rtype : types) {
+
+			if (rtype.getRtype() == RuleType.ERROR) {
+				// 生成目标处理数据
+				ZRuleCommand rcommand = new ZRuleCommand();
+				rcommand.setConfiguration(rtype.getConfiguration());
+				rcommand.setRtype(rtype.getRtype());
+				rcommand.setOriMessage(orimsg);
+				rcommand.setProcessMsg(errormsg);
+				rcommand.setWhere(zrule.getWhere());
+				rcommand.setSelect(zrule.getSelect());
+
+				defaultRuleDespatcher.appendMessage(rcommand);
+
+				break;
+			}
+
+		}
 	}
 
 	/**

@@ -150,6 +150,9 @@ public class DefaultRuleDespatcher implements RuleDispatcher {
 					for (ZRuleCommand rulerst : messages) {
 
 						RuleType ruleType = rulerst.getRtype();
+						
+						if(processorTable.get(ruleType)!=null)
+						{
 
 						Runnable runnable = new Runnable() {
 							@Override
@@ -159,6 +162,10 @@ public class DefaultRuleDespatcher implements RuleDispatcher {
 						};
 
 						processorTable.get(ruleType).getObject2().submit(runnable);
+						}
+						else {
+							log.warn("Rule中 {} 类型消息没有处理程序!",ruleType.toString());
+						}
 
 
 					}

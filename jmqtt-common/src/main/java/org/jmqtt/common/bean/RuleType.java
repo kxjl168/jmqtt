@@ -9,6 +9,7 @@ public enum RuleType {
 	FC, // ：发送数据到函数计算。
 	DATAHUB, // ：发送数据到DataHub中。
 	RDS,// ：存储数据到云数据库中
+	ERROR,
 	NULL;
 
 	public static RuleType Parse(String type)
