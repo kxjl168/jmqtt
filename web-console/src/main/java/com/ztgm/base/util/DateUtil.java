@@ -37,6 +37,24 @@ public class DateUtil {
         return date;
     }
     
+    /**
+     * 
+     * @param date
+     * @param timeType Calendar.DATE 时间粒度
+     * @param nums
+     * @return
+     * @author zj
+     * @date 2019年9月6日
+     */
+    public static Date addByNum(Date date,int timeType,int nums)
+    {
+    	Calendar calendar = Calendar.getInstance();
+    	calendar.setTime(date);
+    	calendar.add(timeType, nums);
+    	return calendar.getTime();
+    }
+    
+    
 
 	public static String defaultFormat = "yyyy-MM-dd HH:mm:ss";
 

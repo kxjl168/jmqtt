@@ -195,13 +195,25 @@
     </logger>
 
     <logger name="clusterLog" additivity="false">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
         <appender-ref ref="JmqttClusterTraceAppender"/>
         <appender-ref ref="STDOUT"/>
     </logger>
 
     <logger name="otherLog" additivity="false">
         <level value="INFO"/>
+        <appender-ref ref="JmqttOtherTraceAppender"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    
+     <logger name="ruleLog" additivity="false">
+        <level value="Debug"/>
+        <appender-ref ref="JmqttOtherTraceAppender"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    
+     <logger name="webLog" additivity="false">
+        <level value="Debug"/>
         <appender-ref ref="JmqttOtherTraceAppender"/>
         <appender-ref ref="STDOUT"/>
     </logger>

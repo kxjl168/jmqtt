@@ -103,7 +103,18 @@
 										</div>
 									</div>
 									
+	<div class="form-group">
+										<label for="name" class="col-lg-3 control-label">规则动作</label>
 
+										<div class="col-lg-9">
+										<textarea type="text" name="configuration"  rows="10"
+											
+											class="form-control col-xs-12" id="configuration"
+												placeholder="" ></textarea>
+											<p class="help-block"></p>
+										</div>
+									</div>
+									
 
 
 

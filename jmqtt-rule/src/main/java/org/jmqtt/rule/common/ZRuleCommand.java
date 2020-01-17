@@ -34,7 +34,7 @@ public class ZRuleCommand {
 	private Message oriMessage;// 原始pub数据
 
 	private Boolean processRst;// 处理结果
-	private String processMsg;// 处理结果
+	private String processMsg;// 处理结果,经过select,where 过滤后的数据 string()json
 
 	public Boolean getSatisfied() {
 		return satisfied;

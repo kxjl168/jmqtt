@@ -25,6 +25,9 @@ public class ConnectManager {
 	public static ConnectManager getInstance() {
 		return INSTANCE;
 	}
+	
+		
+	
 
 	public String getUserName(String clientId) {
 		return this.clientUserNameCache.get(clientId);
@@ -74,6 +77,7 @@ public class ConnectManager {
 	}
 
 	public void printAllSession() {
-		log.info("[[[all connection nums:{}]]]]", clientCache.keySet().size());
+		log.debug("[[[all connection nums:{}]]]]", clientCache.keySet().size());
+
 	}
 }

@@ -59,8 +59,7 @@ public class NettyClusterRemotingClient extends AbstractNettyCluster implements 
     private final int LOCK_CHANNEL_TIMEOUT = 3000;
     
     private final int CHANNEL_CONNETCT_TIMEOUT = 1000;
-    private final ConcurrentMap<String,Channel> channelTable = new ConcurrentHashMap<>();
-
+  
     public NettyClusterRemotingClient(ClusterConfig clusterConfig){
         this.clusterConfig = clusterConfig;
         if(!clusterConfig.isGroupUseEpoll()){
@@ -74,6 +73,8 @@ public class NettyClusterRemotingClient extends AbstractNettyCluster implements 
         }
         this.nettyEventExcutor = new NettyEventExcutor(new ClusterServerChannelEventListener());
         this.bootstrap = new Bootstrap();
+        
+        this.resendService=new ClusterReSendCommandService(this);
     }
 
 
@@ -186,14 +187,14 @@ public class NettyClusterRemotingClient extends AbstractNettyCluster implements 
                 channelFuture.get(CHANNEL_CONNETCT_TIMEOUT, TimeUnit.MILLISECONDS);//等待连接完成
               
             }else{
-                log.warn("try lock channel table to cache channel failure,addr:{}",addr);
+                log.debug("try lock channel table to cache channel failure,addr:{}",addr);
             }
         } catch (InterruptedException e) {
-            log.warn("create new channel failure,remote address={},ex={}",addr,e);
+            log.debug("create new channel failure,remote address={},ex={}",addr,e);
         } catch (ExecutionException e) {
-        	 log.warn("create new channel execution error,remote address={},ex={}",addr,e);
+        	 log.debug("create new channel execution error,remote address={},ex={}",addr,e);
 		} catch (TimeoutException e) {
-			 log.warn(" 【create new channel timeout】 ,remote address={},ex={}",addr,e.getMessage());
+			 log.debug(" 【create new channel timeout】 ,remote address={},ex={}",addr,e.getMessage());
 		}finally {
             lockChannelTable.unlock();
         }

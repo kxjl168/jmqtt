@@ -59,7 +59,7 @@ public class MqttRule {
     private String configuration;
     
     public ZRule converToZRule() {
-    	ZRule zr=new ZRule(productKey, id, id, ruleDesc, topic, wheredata, configuration);
+    	ZRule zr=new ZRule(productKey, id, id, ruleDesc, topic,selectdata,wheredata, configuration);
     	return zr;
     }
 

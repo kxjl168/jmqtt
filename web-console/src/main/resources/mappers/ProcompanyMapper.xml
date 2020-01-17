@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.mqtt.dao.ProcompanyMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.mqtt.pojo.Procompany">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="productKey" jdbcType="VARCHAR" property="productKey" />
+    <result column="secret" jdbcType="VARCHAR" property="secret" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, productKey, secret
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from procompany
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from procompany
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.mqtt.pojo.Procompany">
+    insert into procompany (id, name, productKey, 
+      secret)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{productKey,jdbcType=VARCHAR}, 
+      #{secret,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.mqtt.pojo.Procompany">
+    insert into procompany
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="productKey != null">
+        productKey,
+      </if>
+      <if test="secret != null">
+        secret,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="productKey != null">
+        #{productKey,jdbcType=VARCHAR},
+      </if>
+      <if test="secret != null">
+        #{secret,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.mqtt.pojo.Procompany">
+    update procompany
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="productKey != null">
+        productKey = #{productKey,jdbcType=VARCHAR},
+      </if>
+      <if test="secret != null">
+        secret = #{secret,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.mqtt.pojo.Procompany">
+    update procompany
+    set name = #{name,jdbcType=VARCHAR},
+      productKey = #{productKey,jdbcType=VARCHAR},
+      secret = #{secret,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="com.ztgm.mqtt.pojo.Procompany">
+	select
+	<include refid="Base_Column_List" />
+	from procompany c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = #{id}
+	</if>
+	
+		
+		<if test=" name !=null and name !='' ">
+		and c.name like concat ('%', #{name},'%')
+	</if>
+		
+			
+		
+		<if test=" productKey !=null and productKey !='' ">
+		and c.productKey like concat ('%', #{productKey},'%')
+	</if>
+		
+			
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="com.ztgm.mqtt.pojo.Procompany">
+	delete from procompany
+
+	where id = #{id,jdbcType=VARCHAR}
+
+</delete>
+
+</mapper>

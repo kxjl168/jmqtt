@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztgm.openplat.dao.RuleActionMapper">
+  <resultMap id="BaseResultMap" type="com.ztgm.openplat.pojo.RuleAction">
+    <id column="Id" jdbcType="INTEGER" property="id" />
+    <result column="RuleId" jdbcType="INTEGER" property="ruleId" />
+    <result column="Type" jdbcType="VARCHAR" property="type" />
+    <result column="Configuration" jdbcType="VARCHAR" property="configuration" />
+    <result column="ErrorActionFlag" jdbcType="VARCHAR" property="errorActionFlag" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    Id, RuleId, Type, Configuration, ErrorActionFlag
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from rule_action
+    where Id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from rule_action
+    where Id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ztgm.openplat.pojo.RuleAction">
+    insert into rule_action (Id, RuleId, Type, 
+      Configuration, ErrorActionFlag)
+    values (#{id,jdbcType=INTEGER}, #{ruleId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR}, 
+      #{configuration,jdbcType=VARCHAR}, #{errorActionFlag,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ztgm.openplat.pojo.RuleAction">
+    insert into rule_action
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        Id,
+      </if>
+      <if test="ruleId != null">
+        RuleId,
+      </if>
+      <if test="type != null">
+        Type,
+      </if>
+      <if test="configuration != null">
+        Configuration,
+      </if>
+      <if test="errorActionFlag != null">
+        ErrorActionFlag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="ruleId != null">
+        #{ruleId,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="configuration != null">
+        #{configuration,jdbcType=VARCHAR},
+      </if>
+      <if test="errorActionFlag != null">
+        #{errorActionFlag,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ztgm.openplat.pojo.RuleAction">
+    update rule_action
+    <set>
+      <if test="ruleId != null">
+        RuleId = #{ruleId,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        Type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="configuration != null">
+        Configuration = #{configuration,jdbcType=VARCHAR},
+      </if>
+      <if test="errorActionFlag != null">
+        ErrorActionFlag = #{errorActionFlag,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where Id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ztgm.openplat.pojo.RuleAction">
+    update rule_action
+    set RuleId = #{ruleId,jdbcType=INTEGER},
+      Type = #{type,jdbcType=VARCHAR},
+      Configuration = #{configuration,jdbcType=VARCHAR},
+      ErrorActionFlag = #{errorActionFlag,jdbcType=VARCHAR}
+    where Id = #{id,jdbcType=INTEGER}
+  </update>
+  
+
+
+<select id="selectList"
+	resultMap="BaseResultMap"
+	parameterType="com.ztgm.openplat.pojo.RuleAction">
+	select
+	<include refid="Base_Column_List" />
+	from rule_action c
+
+	where 1=1
+	<if test=" id !=null and id !='' ">
+		and c.id = #{id}
+	</if>
+	
+		
+		<if test=" ruleId !=null and ruleId !='' ">
+		and c.RuleId like concat ('%', #{ruleId},'%')
+	</if>
+		
+			
+		
+		<if test=" type !=null and type !='' ">
+		and c.Type like concat ('%', #{type},'%')
+	</if>
+		
+			
+
+
+</select>
+
+
+
+<delete id="delete"
+	parameterType="com.ztgm.openplat.pojo.RuleAction">
+	delete from rule_action
+
+	where id = #{id,jdbcType=VARCHAR}
+
+</delete>
+
+</mapper>

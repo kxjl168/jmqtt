@@ -185,13 +185,16 @@ public class NettyWebRemotingClient implements WebNettyClient {
 							responseFuture.setSendRequestOK(true);
 							return;
 						}
+						//请求不成功，关闭channel
+						//channel.close();
+						channelTable.remove(RemotingHelper. getRemoteAddr(channel));
 						// requestFail(opaque, command);
 						log.warn("【node error】 inner send a request command to channel <{}> failed.", remotingAddr);
 					}
 				});
 				
 				if(!isAsync&&cfuture!=null)
-				 cfuture.await(50);
+				 cfuture.await(100);
 				
 				
 			} else {

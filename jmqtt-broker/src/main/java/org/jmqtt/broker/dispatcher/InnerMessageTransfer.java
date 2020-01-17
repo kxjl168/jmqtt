@@ -12,6 +12,7 @@ import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.common.message.MessageDispatcher;
+import org.jmqtt.group.ClusterMessageTransfer;
 import org.jmqtt.group.MessageTransfer;
 import org.jmqtt.group.common.ClusterNodeManager;
 import org.jmqtt.group.message.MessageListener;
@@ -36,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * transfer message in cluster
  */
-public class InnerMessageTransfer{
+public class InnerMessageTransfer implements ClusterMessageTransfer {
     private static final Logger msgLog = LoggerFactory.getLogger(LoggerName.MESSAGE_TRACE);
     private static final Logger connLog = LoggerFactory.getLogger(LoggerName.CLIENT_TRACE);
     private static final Logger clusterLog = LoggerFactory.getLogger(LoggerName.CLUSTER);
@@ -52,6 +53,8 @@ public class InnerMessageTransfer{
     private OfflineMessageStore offlineMessageStore;
 
 
+    
+    
     public InnerMessageTransfer(BrokerController brokerController,MessageTransfer messageTransfer) {
         this.messageDispatcher = brokerController.getMessageDispatcher();
         this.retainMessageStore = brokerController.getRetainMessageStore();
@@ -65,6 +68,14 @@ public class InnerMessageTransfer{
     }
 
 
+    public void dispatcherMessage2Cluster(Message message){
+        ClusterRemotingCommand remotingCommand = new ClusterRemotingCommand(ClusterRequestCode.SEND_MESSAGE);
+        byte[] body = SerializeHelper.serialize(message);
+        remotingCommand.setBody(body);
+        send2AllNodes(remotingCommand);
+    }
+
+    
 
     public void init() {
         MessageListener listener = new InnerMessageListener();

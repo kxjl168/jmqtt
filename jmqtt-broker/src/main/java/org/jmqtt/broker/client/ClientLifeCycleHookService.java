@@ -35,11 +35,17 @@ public class ClientLifeCycleHookService implements ChannelEventListener {
                 Message willMessage = willMessageStore.getWillMessage(clientId);
                 messageDispatcher.appendMessage(willMessage);
             }
+            
+        	ConnectManager.getInstance().removeClient(clientId);
         }
     }
 
     @Override
     public void onChannelIdle(String remoteAddr, Channel channel) {
+    	//ping 断线
+    	String clientId = NettyUtil.getClientId(channel);
+		ConnectManager.getInstance().removeClient(clientId);
+		log.warn("[ClientLifeCycleHook] -> {} channelException,close channel and remove ConnectCache!",clientId);
     }
 
     @Override

@@ -185,7 +185,7 @@ public class BrokerController {
 
         /* cluster  */
         this.clusterClient = new NettyClusterRemotingClient(clusterConfig);
-        this.clusterServer = new NettyClusterRemotingServer(clusterConfig);
+        this.clusterServer = new NettyClusterRemotingServer(clusterConfig,this.clusterClient);
         {
             // message transfer is pluginAble
             MessageTransfer messageTransfer = new DefaultMessageTransfer(this.clusterClient,this.clusterServer);
@@ -208,7 +208,7 @@ public class BrokerController {
                 new ThreadFactoryImpl("RuleThread"),
                 new RejectHandler("sub", 100000));
         //zj
-        this.ruleEngin=new DefaultIOTRuleEngin(coreThreadNum * 2, ruleMessageStore, subscriptionMatcher, messageDispatcher, ruleExecutorService,ruleConfig);
+        this.ruleEngin=new DefaultIOTRuleEngin(coreThreadNum * 2, ruleMessageStore, subscriptionMatcher, messageDispatcher, ruleExecutorService,ruleConfig,innerMessageTransfer);
 
         this.webExecutorService = new ThreadPoolExecutor(coreThreadNum * 2,
                 coreThreadNum * 2,

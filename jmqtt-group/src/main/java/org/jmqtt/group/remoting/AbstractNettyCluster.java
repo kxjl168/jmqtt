@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -37,8 +38,9 @@ public abstract class AbstractNettyCluster {
 	private static final Logger log = LoggerFactory.getLogger(LoggerName.CLUSTER);
 
 	private final Map<Integer /* opaque */, ResponseFuture> responseTable = new ConcurrentHashMap<>();
-	protected final ClusterReSendCommandService resendService = new ClusterReSendCommandService(this);
+	protected  ClusterReSendCommandService resendService ;//= new ClusterReSendCommandService(this);
 	protected final Map<Integer /* code */, Pair<ClusterRequestProcessor, ExecutorService>> processorTable = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, Channel> channelTable = new ConcurrentHashMap<>();
 
 	/**
 	 * Semaphore to limit maximum number of on-going asynchronous requests, which
@@ -53,6 +55,8 @@ public abstract class AbstractNettyCluster {
 	public AbstractNettyCluster(int semaphore) {
 		this.semaphore = new Semaphore(semaphore, true);
 	}
+	
+	
 
 	public void scanResponseTable() {
 		List<ResponseFuture> rsList = new LinkedList<>();
@@ -76,6 +80,7 @@ public abstract class AbstractNettyCluster {
 
 	/**
 	 * 请求类型转换
+	 * 
 	 * @param requestcode
 	 * @return
 	 * @author zj
@@ -124,7 +129,8 @@ public abstract class AbstractNettyCluster {
 				// RemotingHelper.getRemoteAddr(channel);
 
 				// zj
-				log.debug("****cluster inner request begin***  opaque :{}, dest:{},requestType:{},chnnel:{}", opaque,remotingAddr,  command.getCode()+":"+getRequestType(command.getCode()),channel.toString());
+				log.debug("****cluster inner request begin***  opaque :{}, dest:{},requestType:{},chnnel:{}", opaque,
+						remotingAddr, command.getCode() + ":" + getRequestType(command.getCode()), channel.toString());
 
 				channel.writeAndFlush(command).addListener(new ChannelFutureListener() {
 					@Override
@@ -133,6 +139,8 @@ public abstract class AbstractNettyCluster {
 							responseFuture.setSendRequestOK(true);
 							return;
 						}
+						// channel.close();
+						channelTable.remove(RemotingHelper.getRemoteAddr(channel));
 						requestFail(opaque, command);
 						log.warn("【cluster error】 inner send a request command to channel <{}> failed.", remotingAddr);
 					}
@@ -150,10 +158,7 @@ public abstract class AbstractNettyCluster {
 
 	protected void processMessageReceived(ChannelHandlerContext ctx, ClusterRemotingCommand cmd) {
 		if (cmd != null) {
-			
-			
-			
-			
+
 			if (MessageFlag.COMPRESSED_FLAG == cmd.getFlag()) {
 				byte[] body = cmd.getBody();
 				try {
@@ -179,19 +184,19 @@ public abstract class AbstractNettyCluster {
 	private void processRequest(ChannelHandlerContext ctx, ClusterRemotingCommand cmd) {
 		final Pair<ClusterRequestProcessor, ExecutorService> pair = this.processorTable.get(cmd.getCode());
 		final int opaque = cmd.getOpaque();
-		final int code=cmd.getCode();
-		String fromnode=cmd.getExtField(CommandConstant.NODE_NAME);
+		final int code = cmd.getCode();
+		String fromnode = cmd.getExtField(CommandConstant.NODE_NAME);
 		if (pair != null) {
 			Runnable runnable = new Runnable() {
 				@Override
 				public void run() {
-					
-					log.debug("****cluster inner request arrived ***  opaque :{},requestType:{}, fromNode:{} ", opaque, code+":"+getRequestType(code),fromnode);
 
-					
+					log.debug("****cluster inner request arrived ***  opaque :{},requestType:{}, fromNode:{} ", opaque,
+							code + ":" + getRequestType(code), fromnode);
+
 					final ClusterRemotingCommand responseCommand = pair.getObject1().processRequest(ctx, cmd);
 					if (responseCommand != null) {
-						
+
 						responseCommand.setOpaque(opaque);
 						responseCommand.makeResponseType();
 						ctx.writeAndFlush(responseCommand).addListener(new ChannelFutureListener() {
@@ -219,22 +224,23 @@ public abstract class AbstractNettyCluster {
 
 	private void processResponse(ChannelHandlerContext ctx, ClusterRemotingCommand cmd) {
 		final int opaque = cmd.getOpaque();
-		
+
 		final int code = cmd.getCode();// zj modify
 		final int rcode = cmd.getResponseCode();// zj modify
 		// response failure , resend later
 		if (rcode == ClusterResponseCode.RESPONSE_OK) {
-			final ClusterResponseFuture responseFuture = (ClusterResponseFuture)responseTable.get(opaque);
+			final ClusterResponseFuture responseFuture = (ClusterResponseFuture) responseTable.get(opaque);
 			if (responseFuture != null) {
-				log.info("cluster receive response future, data {}.", cmd);
+				log.debug("cluster receive response future, data {}.", cmd);
 				responseFuture.setClusterRemotingCommand(cmd);
 				responseFuture.executeCallback();
 				responseFuture.release();
 			} else {
-				log.warn("cluster receive not exist response future, code={}, opaque={}.", code+":"+getRequestType(code), opaque);
+				log.warn("cluster receive not exist response future, code={}, opaque={}.",
+						code + ":" + getRequestType(code), opaque);
 			}
 		} else {
-			log.warn("receive response is error,response code={}",  code+":"+getRequestType(code));
+			log.warn("receive response is error,response code={}", code + ":" + getRequestType(code));
 		}
 
 		// zj add 清空原请求
@@ -262,13 +268,17 @@ public abstract class AbstractNettyCluster {
 			log.warn("Cluster Fetch_node Fail: Cluster Node {} is offline", destAddress);
 		} else {
 
-			if(command.getErrorNum()<3) //重试3次，丢掉 zj
-			{
-			command.setErrorNum(command.getErrorNum()+1);
+			// if(command.getErrorNum()<3) //重试3次，丢掉 zj
+			// {
+			command.setErrorNum(command.getErrorNum() + 1);
 			// 除集群节点扫描命令外，其他命令重发
-			resendService.appendMessage(responseFuture.getChannel(), command, responseFuture.getTimeoutMillis(),
+
+			String remotingAddr = command.getExtField(CommandConstant.TO_NODE_ADDRESS);
+
+			// zj 使用ipport重发，channel可以已经断线
+			resendService.appendMessage(remotingAddr, command, responseFuture.getTimeoutMillis(),
 					responseFuture.getInvokeCallback());
-			}
+			// }
 		}
 
 	}
@@ -278,13 +288,15 @@ public abstract class AbstractNettyCluster {
 		if (responseFuture == null)
 			return;
 
-		ClusterRemotingCommand command =( (ClusterResponseFuture)responseFuture).getClusterRemotingCommand();
+		ClusterRemotingCommand command = ((ClusterResponseFuture) responseFuture).getClusterRemotingCommand();
 
 		// zj 191213 add
 		if (command.getCode() == ClusterRequestCode.FETCH_NODES) {
 
 		} else {
-			resendService.appendMessage(responseFuture.getChannel(), command, responseFuture.getTimeoutMillis(),
+
+			String remotingAddr = command.getExtField(CommandConstant.TO_NODE_ADDRESS);
+			resendService.appendMessage(remotingAddr, command, responseFuture.getTimeoutMillis(),
 					responseFuture.getInvokeCallback());
 		}
 	}

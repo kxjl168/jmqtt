@@ -15,7 +15,24 @@ function test(){
 	});
 }
 
+
 $(function() {
+	
+	
+	//var hash = CryptoJS.HmacSHA1("password=123456&user=admin&key=test", "test");
+	
+	var hash=sha256.hmac('test', 'password=123456&user=admin&key=test');
+	//var s=String(hash);
+	 console.log('-------', hash.toLocaleUpperCase())
+	
+	 
+	 var data=SignUtil.HMACSHA256({
+		 "key":"test",
+		 "password":"123456",
+		 "user":"admin",
+	 })
+	  console.log('---data---- :', hash.toLocaleUpperCase())
+	
 	InitQuery_item();
 
 
@@ -238,6 +255,15 @@ function InitQuery_item() {
 				   
 				
 			},
+			 {
+				field : 'configuration',
+				title : '动作配置',
+				align : 'center',
+				valign : 'middle',
+				   
+				
+			},
+			
 		
 		
 		

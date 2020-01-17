@@ -12,6 +12,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.jmqtt.common.config.ClusterConfig;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
+import org.jmqtt.group.ClusterRemotingClient;
 import org.jmqtt.group.ClusterRemotingServer;
 import org.jmqtt.group.processor.ClusterRequestProcessor;
 import org.jmqtt.group.protocol.ClusterRemotingCommand;
@@ -48,8 +49,9 @@ public class NettyClusterRemotingServer extends AbstractNettyCluster implements 
     private ServerBootstrap serverBootstrap;
     private ScheduledExecutorService schudure = new ScheduledThreadPoolExecutor(1,new ThreadFactoryImpl("ScanResponseTableThread"));
 
+    private ClusterRemotingClient remotingClient;
 
-    public NettyClusterRemotingServer(ClusterConfig clusterConfig){
+    public NettyClusterRemotingServer(ClusterConfig clusterConfig, ClusterRemotingClient remotingClient){
         this.clusterConfig = clusterConfig;
         if(!clusterConfig.isGroupUseEpoll()){
             selectorGroup = new NioEventLoopGroup(clusterConfig.getGroupSelectorThreadNum(),
@@ -66,6 +68,9 @@ public class NettyClusterRemotingServer extends AbstractNettyCluster implements 
         }
         this.nettyEventExcutor = new NettyEventExcutor(new ClusterServerChannelEventListener());
         this.serverBootstrap = new ServerBootstrap();
+        
+        this.remotingClient=remotingClient;
+        this.resendService=new ClusterReSendCommandService(remotingClient);
     }
 
 

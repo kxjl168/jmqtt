@@ -81,6 +81,10 @@ public class DefalutMqttHelper implements MqttHelper {
 	 * @date 2020年1月8日
 	 */
 	public void notifyNodeToRefreshRules(String productKey) {
+		
+		serverIPPORT = "192.168.100.41:29990";
+		
+		
 		WebRemotingCommand wcmd = new WebRemotingCommand();
 		wcmd.setCode(WebRequestCode.SAVE_OR_UPDATE_RULE);
 

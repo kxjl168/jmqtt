@@ -2,6 +2,7 @@ package org.jmqtt.rule.processor.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,16 +23,21 @@ import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RuleBuilder;
 import org.jmqtt.common.bean.Message;
+import org.jmqtt.common.bean.MessageHeader;
 import org.jmqtt.common.bean.RuleType;
 import org.jmqtt.common.bean.ZRule;
 import org.jmqtt.common.config.RuleConfig;
+import org.jmqtt.common.constant.RuleConstants;
 import org.jmqtt.common.helper.HttpSendPostNew;
 import org.jmqtt.common.helper.RejectHandler;
+import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.common.subscribe.SubscriptionMatcher;
+import org.jmqtt.group.ClusterMessageTransfer;
 import org.jmqtt.remoting.session.ConnectManager;
+import org.jmqtt.rule.common.RuleDest;
 import org.jmqtt.rule.common.ZRuleCommand;
 import org.jmqtt.rule.processor.RuleEngin;
 import org.jmqtt.rule.processor.RuleResultProcessor;
@@ -39,9 +45,14 @@ import org.jmqtt.store.RuleMessageStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators.UUIDGenerator;
 import com.fasterxml.jackson.databind.ser.std.UUIDSerializer;
+import com.google.gson.Gson;
+
+import io.github.glytching.tranquil.Tranquil;
+import io.netty.handler.codec.mqtt.MqttFixedHeader;
 
 public class DefaultIOTRuleEngin implements RuleEngin {
 
@@ -56,6 +67,7 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 	private final int FETCH_RULE_TIME_MILLIS = 5 * 60 * 1000;
 
 	private RuleConfig ruleConfig;
+	private ClusterMessageTransfer clusterMessageTransfer;
 
 	@Override
 	public boolean filter(Message message) {
@@ -68,7 +80,7 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 
 	public DefaultIOTRuleEngin(int pollThreadNum, RuleMessageStore ruleMessageStore,
 			SubscriptionMatcher subscriptionMatcher, MessageDispatcher messageDispatcher,
-			ExecutorService executorService, RuleConfig ruleConfig) {
+			ExecutorService executorService, RuleConfig ruleConfig,ClusterMessageTransfer clusterMessageTransfer) {
 		this.pollThreadNum = pollThreadNum;
 
 		this.ruleMessageStore = ruleMessageStore;
@@ -77,10 +89,11 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 				new ThreadFactoryImpl("scheduleFetchRuleThread"));
 
 		this.ruleConfig = ruleConfig;
-
+		this.clusterMessageTransfer=clusterMessageTransfer;
+		
 		this.defaultRuleDespatcher = new DefaultRuleDespatcher(10, subscriptionMatcher, messageDispatcher);
 
-		RuleResultProcessor mqttProcessor = new DefaultMqttRuleProcessor(messageDispatcher);
+		RuleResultProcessor mqttProcessor = new DefaultMqttRuleProcessor(messageDispatcher,clusterMessageTransfer);
 		defaultRuleDespatcher.registerProcessor(RuleType.REPUBLISH, mqttProcessor, executorService);
 	}
 
@@ -108,7 +121,58 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 			// mqtt json数据 输入
 			Message msg = fact.get("msg");
 
-			String msgTopic = (String) msg.getHeader("topic");
+			String msgTopic = (String) msg.getHeader(MessageHeader.TOPIC);
+			byte[] msgData = (byte[]) msg.getPayload();
+
+			String jsonStr = "";
+			try {
+				jsonStr = new String(msgData, "utf-8");
+				SerializeHelper.deserialize(msgData, String.class);
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// 通过Gson 格式化json str,引号之类的问题
+			Gson gs = new Gson();
+			JSONObject json = gs.fromJson(jsonStr, JSONObject.class);
+			if (json == null)
+				return false;
+
+			// 基于Tranquil ANTLR4的sql语法解析，及json数据解析匹配过滤
+			Date startDate = new Date();
+			boolean isExist = Tranquil.parse(json).exists(zrule.getWhere());
+			Date endDate = new Date();
+
+			log.debug("Rule[Tranquil-ANTLR4] Paring using time {} ms ,with data :{} where:{}  ",
+					endDate.getTime() - startDate.getTime(), json, zrule.getWhere());
+			if (!isExist)
+				return false;
+			else
+				return true;
+			/*
+			 * // rule // zrule.getWhere().sp // TODO where 解析 String field = "data"; String
+			 * action = ">"; int fieldData = 5;
+			 * 
+			 * int realdata = json.getIntValue(field);
+			 * 
+			 * if (msgTopic.equals(zrule.getTopic())) { if (action.equals(">")) { if
+			 * (realdata > fieldData) return true; else return false;
+			 * 
+			 * } else if (action.equals("<")) { if (realdata < fieldData) return true; else
+			 * return false; }
+			 * 
+			 * return true;
+			 * 
+			 * } else return false;
+			 */
+
+		}).then(fact -> {
+
+			// TODO 匹配规则计数
+
+			// mqtt json数据 输入
+			Message msg = fact.get("msg");
+
 			byte[] msgData = (byte[]) msg.getPayload();
 
 			String jsonStr = "";
@@ -118,54 +182,59 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			JSONObject json = JSONObject.parseObject(jsonStr);
-			if (json == null)
-				return false;
+			// 通过Gson 格式化json str,引号之类的问题
+			Gson gs = new Gson();
+			JSONObject json = gs.fromJson(jsonStr, JSONObject.class);
+			// 基于ANTLR4的sql语法解析，及json数据解析匹配过滤出目标地需要的数据
+			String jsonReturn = Tranquil.parse(json).read(zrule.getSelect(), zrule.getWhere());
 
-			// rule
-			// zrule.getWhere().sp
-			// TODO where 解析
-			String field = "data";
-			String action = ">";
-			int fieldData = 5;
+			List<RuleDest> types = parseRuleType(zrule.getConfiguration());
+			for (RuleDest rtype : types) {
 
-			int realdata = json.getIntValue(field);
+				// 生成目标处理数据
+				ZRuleCommand rcommand = new ZRuleCommand();
+				rcommand.setConfiguration(rtype.getConfiguration());
+				rcommand.setRtype(rtype.getRtype());
+				rcommand.setOriMessage(msg);
+				rcommand.setProcessMsg(jsonReturn);
+				rcommand.setWhere(zrule.getWhere());
+				rcommand.setSelect(zrule.getSelect());
 
-			if (msgTopic.equals(zrule.getTopic())) {
-				if (action.equals(">")) {
-					if (realdata > fieldData)
-						return true;
-					else
-						return false;
-
-				} else if (action.equals("<")) {
-					if (realdata < fieldData)
-						return true;
-					else
-						return false;
-				}
-
-				return true;
-
-			} else
-				return false;
-
-		}).then(fact -> {
-
-			// 解析 select 数据
-			ZRuleCommand rcommand = new ZRuleCommand();
-			rcommand.setConfiguration(zrule.getConfiguration());
-			rcommand.setRtype(RuleType.REPUBLISH);
-			// TODO
-			// 添加至待处理队列
-
-			defaultRuleDespatcher.appendMessage(rcommand);
-
-			// System.out.println("It rains, take an umbrella!");
+				defaultRuleDespatcher.appendMessage(rcommand);
+			}
 
 		}).build();
 
 		return rule;
+	}
+
+	/**
+	 * 根据configuration中的json 数组中 ruleType字段数据 获取转发动作
+	 * 
+	 * @param configuration
+	 * @return
+	 * @author zj
+	 * @date 2020年1月17日
+	 */
+	private List<RuleDest> parseRuleType(String configuration) {
+		List<RuleDest> types = new ArrayList<>();
+
+		// 通过Gson 格式化json str,引号之类的问题
+		Gson gs = new Gson();
+		JSONArray jsonarray = gs.fromJson(configuration, JSONArray.class);
+		if (jsonarray != null) {
+			for (int i = 0; i < jsonarray.size(); i++) {
+				JSONObject configDest = jsonarray.getJSONObject(i);
+				String type = configDest.getString(RuleConstants.JSON_RULE_TYPE);
+				if (type != null) {
+					RuleType destType = RuleType.Parse(type);
+					RuleDest rDest = new RuleDest(destType, configDest.toJSONString());
+					types.add(rDest);
+				}
+			}
+		}
+
+		return types;
 	}
 
 	public boolean refreshRules(String productKey) {
@@ -192,7 +261,7 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 				}
 			}
 		} catch (Exception e) {
-			log.debug("Rule Engin rule list Refresh Error:"+e.getMessage());
+			log.debug("Rule Engin rule list Refresh Error:" + e.getMessage());
 			return false;
 		}
 
@@ -201,7 +270,7 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 		if (rules == null || rules.size() == 0)
 			return false;
 		else {
-			log.debug("productKey:{} rule refreshed!!!! size:{}",productKey,rules.size());
+			log.debug("productKey:{} rule refreshed!!!! size:{}, data:{}", productKey, rules.size(), rules.toString());
 		}
 
 		Map<String, List<ZRule>> productRules = new HashMap<>();
@@ -224,7 +293,7 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 			// 刷新rule
 			ruleMessageStore.removeRuleMessage(pkey);
 
-			ruleMessageStore.storeRuleMessage(pkey, productRules.get(productKey));
+			ruleMessageStore.storeRuleMessage(pkey, productRules.get(pkey));
 		}
 
 		return true;
@@ -239,7 +308,7 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 			public void run() {
 				refreshRules("");
 			}
-		}, 10 * 1000, FETCH_RULE_TIME_MILLIS, TimeUnit.MILLISECONDS);
+		}, 5 * 1000, FETCH_RULE_TIME_MILLIS, TimeUnit.MILLISECONDS);
 
 		defaultRuleDespatcher.start();
 

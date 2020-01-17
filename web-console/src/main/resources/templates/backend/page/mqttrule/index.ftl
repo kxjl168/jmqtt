@@ -149,5 +149,7 @@
 
 		<script
 			src="${ctx}/vendor/pageAuto/mqttrule/js/mqttrule.js"></script>
+			<script
+			src="${ctx}/vendor/pageAuto/mqttrule/js/sha256.js"></script>
 </body>
 </html>

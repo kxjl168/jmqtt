@@ -1,6 +1,8 @@
 package org.jmqtt.common.helper;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.group.protocol.node.ServerNode;
 import org.slf4j.Logger;
@@ -27,10 +29,13 @@ public class SerializeHelper {
 
     public static <T> T deserialize(byte[] bytes,Class<T> clazz){
         try{
+        	String jsSt=new String(bytes,"utf-8");
             if(clazz == String.class){
-                return (T) new String(bytes);
+                return (T)jsSt;
             }
-            return JSONObject.parseObject(bytes,clazz);
+            Gson gs=new Gson();
+            return gs.fromJson(jsSt, clazz);
+            //return JSONObject.parseObject(bytes,clazz);
         }catch(Exception ex){
             log.warn("Deserialize failure,cause={}",ex);
         }

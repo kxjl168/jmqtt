@@ -52,15 +52,30 @@ public class ZRule implements Serializable {
 		
 	}
 	
-	public ZRule(String productKey,String ruleaid,String ruleid,String desc,String topic,String where,String config) {
+	public ZRule(String productKey,String ruleaid,String ruleid,String desc,String topic,String select,String where,String config) {
 		this.productKey=productKey;
 		this.ruleactionid=ruleaid;
 		this.name=ruleid+"name";
 		this.ruleid=ruleid;
 		this.ruleDesc=desc;
 		this.topic=topic;
+		this.select=select;
 		this.where=where;
 		this.configuration=config;
+	}
+	
+	public String toString() {
+		return "{productKey:"+productKey+
+				" ruleactionid:"+ruleactionid+
+				" name:"+name+
+				" ruleid:"+ruleid+
+				" ruleDesc:"+ruleDesc+
+				" topic:"+topic+
+				" select:"+select+
+				
+				" where:"+where+
+				" configuration:"+configuration
+				+"}";
 	}
 	
 	
