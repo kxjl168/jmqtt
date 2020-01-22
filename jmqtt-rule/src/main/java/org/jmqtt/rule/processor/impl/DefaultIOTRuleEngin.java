@@ -286,6 +286,11 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 
 	public boolean refreshRules(String productKey) {
 		// HTTP
+		
+		
+		if(!ruleConfig.isRuleenable())
+			return false;
+		
 
 		List<ZRule> rules = new ArrayList<>();
 
@@ -407,6 +412,10 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 
 		@Override
 		public void run() {
+			
+			if(!ruleConfig.isRuleenable())
+				return ;
+			
 			if (Objects.nonNull(messages)) {
 				try {
 					for (Message rulerst : messages) {

@@ -41,6 +41,7 @@
                 <include>org.jmqtt:jmqtt-group</include>
                 <include>org.jmqtt:jmqtt-rule</include>
                 <include>org.jmqtt:jmqtt-web</include>
+                <include>org.jmqtt:jmqtt-iot</include>
             </includes>
             <binaries>
                 <outputDirectory>lib/</outputDirectory>

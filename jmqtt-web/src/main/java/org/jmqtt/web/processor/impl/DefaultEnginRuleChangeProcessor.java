@@ -4,7 +4,7 @@ import org.jmqtt.common.bean.Message;
 import org.jmqtt.common.bean.MessageHeader;
 import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.message.MessageDispatcher;
-
+import org.jmqtt.group.ClusterMessageTransfer;
 import org.jmqtt.rule.common.ZRuleCommand;
 import org.jmqtt.rule.processor.RuleEngin;
 import org.jmqtt.rule.processor.RuleResultProcessor;
@@ -29,9 +29,13 @@ import io.netty.handler.codec.mqtt.MqttMessage;
 public class DefaultEnginRuleChangeProcessor implements WebRequestProcessor {
 
 	RuleEngin ruleEngin;
+	
+	ClusterMessageTransfer clusterMessageTransfer;
 
-	public DefaultEnginRuleChangeProcessor(RuleEngin ruleEngin) {
+
+	public DefaultEnginRuleChangeProcessor(RuleEngin ruleEngin) { //{,ClusterMessageTransfer clusterMessageTransfer) {
 		this.ruleEngin = ruleEngin;
+		//this.clusterMessageTransfer = clusterMessageTransfer;
 	}
 
 	@Override
@@ -43,6 +47,9 @@ public class DefaultEnginRuleChangeProcessor implements WebRequestProcessor {
 		
 		cmd.setResponseCode(WebResponseCode.RESPONSE_OK);
 		cmd.makeResponseType();
+		
+		
+		//clusterMessageTransfer.dispatcherMessage2Cluster(message);
 		
 		return cmd;
 	}

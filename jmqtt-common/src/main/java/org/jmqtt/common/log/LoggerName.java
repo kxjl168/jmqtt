@@ -18,4 +18,6 @@ public interface LoggerName {
     String RULE = "ruleLog";
     
     String WEB = "webLog";
+    
+    String IOTMODEL="iotModel";
 }

@@ -33,9 +33,9 @@ public class SerializeHelper {
             if(clazz == String.class){
                 return (T)jsSt;
             }
-            Gson gs=new Gson();
-            return gs.fromJson(jsSt, clazz);
-            //return JSONObject.parseObject(bytes,clazz);
+           // Gson gs=new Gson();
+            //return gs.fromJson(jsSt, clazz);
+            return JSONObject.parseObject(bytes,clazz);
         }catch(Exception ex){
             log.warn("Deserialize failure,cause={}",ex);
         }

@@ -17,4 +17,7 @@ public interface RDBStorePrefix {
     String WILL_MESSAGE = "willMessage:";
     
     String RULE_MESSAGE = "ruleMessage:";
+    
+    //物模型数据
+    String IOTOBJECTMODEL_MESSAGE = "iotModelMessage:";
 }
