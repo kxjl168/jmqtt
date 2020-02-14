@@ -3,6 +3,7 @@ package org.jmqtt.rule.processor;
 import org.jeasy.rules.api.Rule;
 import org.jmqtt.common.bean.Message;
 import org.jmqtt.common.bean.ZRule;
+import org.jmqtt.iot.processor.IotObjectEngin;
 
 /**
  * 规则引擎，启动后及开始接受mqtt消息过滤处理。<br>
@@ -33,6 +34,17 @@ public interface RuleEngin {
 	 * @date 2019年12月30日
 	 */
 	boolean refreshRules(String productKey);
+	
+	
+	  /**
+     * 关联engin，转发引擎过滤日志
+     * @param iotEngin
+     * @author zj
+     * @date 2020年2月13日
+     */
+    void setIotEngin(IotObjectEngin iotEngin);
+  
+
 
 	
 	void start();

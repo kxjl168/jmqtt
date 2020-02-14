@@ -5,11 +5,14 @@ import org.jmqtt.common.bean.MessageHeader;
 import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.group.ClusterMessageTransfer;
+import org.jmqtt.group.message.WebSRequestListener;
+import org.jmqtt.group.protocol.ClusterRequestCode;
 import org.jmqtt.rule.common.ZRuleCommand;
 import org.jmqtt.rule.processor.RuleEngin;
 import org.jmqtt.rule.processor.RuleResultProcessor;
 import org.jmqtt.web.common.WebRemotingCommand;
 import org.jmqtt.web.common.WebResponseCode;
+
 import org.jmqtt.web.processor.WebRequestProcessor;
 
 import com.alibaba.fastjson.JSONObject;
@@ -31,11 +34,12 @@ public class DefaultEnginRuleChangeProcessor implements WebRequestProcessor {
 	RuleEngin ruleEngin;
 	
 	ClusterMessageTransfer clusterMessageTransfer;
+	WebSRequestListener webRequestListener;
 
-
-	public DefaultEnginRuleChangeProcessor(RuleEngin ruleEngin) { //{,ClusterMessageTransfer clusterMessageTransfer) {
+	public DefaultEnginRuleChangeProcessor(RuleEngin ruleEngin ,ClusterMessageTransfer clusterMessageTransfer) {
 		this.ruleEngin = ruleEngin;
-		//this.clusterMessageTransfer = clusterMessageTransfer;
+		//this.webRequestListener=webRequestListener;
+		this.clusterMessageTransfer = clusterMessageTransfer;
 	}
 
 	@Override
@@ -44,6 +48,11 @@ public class DefaultEnginRuleChangeProcessor implements WebRequestProcessor {
 		String proKey=SerializeHelper.deserialize(cmd.getBody(),String.class);
 		
 		ruleEngin.refreshRules(proKey);
+		//webRequestListener.EnginRuleChanged(cmd);
+		
+		Message innermsg=new Message();
+		innermsg.setPayload(cmd.getBody());
+		clusterMessageTransfer.dispatcherOtherMessage2Cluster(ClusterRequestCode.NOTICE_RULE_CHAGNEND, innermsg);
 		
 		cmd.setResponseCode(WebResponseCode.RESPONSE_OK);
 		cmd.makeResponseType();

@@ -50,6 +50,11 @@
 			<artifactId>jmqtt-web-lib</artifactId>
 		</dependency>
 
+	<dependency>
+			<groupId>org.jmqtt</groupId>
+			<artifactId>jmqtt-iot</artifactId>
+		</dependency>
+
 
 	</dependencies>
 

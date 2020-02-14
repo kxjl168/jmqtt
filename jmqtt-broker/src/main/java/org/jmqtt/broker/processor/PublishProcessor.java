@@ -6,6 +6,8 @@ import io.netty.handler.codec.mqtt.MqttPubAckMessage;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.util.ReferenceCountUtil;
+import io.netty.util.concurrent.FutureListener;
+
 import org.jmqtt.broker.BrokerController;
 import org.jmqtt.broker.acl.PubSubPermission;
 import org.jmqtt.store.FlowMessageStore;
@@ -13,6 +15,7 @@ import org.jmqtt.remoting.session.ClientSession;
 import org.jmqtt.common.bean.Message;
 import org.jmqtt.common.bean.MessageHeader;
 import org.jmqtt.common.log.LoggerName;
+import org.jmqtt.iot.processor.IotObjectEngin;
 import org.jmqtt.remoting.netty.RequestProcessor;
 import org.jmqtt.remoting.session.ConnectManager;
 import org.jmqtt.remoting.util.MessageUtil;
@@ -32,6 +35,8 @@ public class PublishProcessor extends AbstractMessageProcessor implements Reques
 	private PubSubPermission pubSubPermission;
 
 	private RuleEngin ruleEngin;
+	
+	private IotObjectEngin iotEngin;
 
 	public PublishProcessor(BrokerController controller) {
 		super(controller.getMessageDispatcher(), controller.getRetainMessageStore(),
@@ -40,6 +45,7 @@ public class PublishProcessor extends AbstractMessageProcessor implements Reques
 		this.pubSubPermission = controller.getPubSubPermission();
 
 		this.ruleEngin = controller.getRuleEngin();
+		this.iotEngin=controller.getIotEngin();
 	}
 
 	@Override
@@ -82,6 +88,7 @@ public class PublishProcessor extends AbstractMessageProcessor implements Reques
 			}
 
 			processRule(ctx, innerMsg);
+			processIotModel(ctx,innerMsg);
 
 		} catch (Throwable tr) {
 			log.warn("[PubMessage] -> Solve mqtt pub message exception:{}", tr);
@@ -101,9 +108,25 @@ public class PublishProcessor extends AbstractMessageProcessor implements Reques
 	private void processRule(ChannelHandlerContext ctx, Message innerMsg) {
 		log.info("[PubMessage] -> Process processRule message,clientId={}", innerMsg.getClientId());
 
+		
 		ruleEngin.filter(innerMsg);
 
 	}
+	
+	/**
+	 * 处理IOT物模型数据
+	 * @param ctx
+	 * @param innerMsg
+	 * @author zj
+	 * @date 2020年2月10日
+	 */
+	private void processIotModel(ChannelHandlerContext ctx, Message innerMsg) {
+		log.info("[PubMessage] -> Process processIotModel message,clientId={}", innerMsg.getClientId());
+
+		iotEngin.dealObjectMessage(innerMsg);
+
+	}
+	
 
 	private void processQos2(ChannelHandlerContext ctx, Message innerMsg) {
 		log.info("[PubMessage] -> Process qos2 message,clientId={}", innerMsg.getClientId());

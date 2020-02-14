@@ -190,7 +190,7 @@ public class SignUtil {
 	}
 
 	/**
-	 * 生成签名
+	 * 生成签名 默认HMACSHA256加密
 	 *
 	 * @param data
 	 *            待签名数据
@@ -199,7 +199,7 @@ public class SignUtil {
 	 * @return 签名
 	 */
 	public static String generateSignature(final Map<String, String> data, String key) throws Exception {
-		return generateSignature(data, key, SignType.MD5);
+		return generateSignature(data, key, SignType.HMACSHA256);
 	}
 
 	/**
@@ -320,6 +320,16 @@ public class SignUtil {
 	}
 
 	public static void main(String[] args) {
+		
+		
+		try {
+			//BCCE73216BCC9016C5887DC497B56948DE46D3A28CC023FA49D7C2F6F081CD45
+			System.out.println( HMACSHA256("clientIdtestclient1deviceNamedevice1productKeytestKeytimestamp22334123", "123"));
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		Map<String, String> mdata = new HashMap<String, String>();
 		mdata.put("user", "admin");
 		mdata.put("password", "123456");

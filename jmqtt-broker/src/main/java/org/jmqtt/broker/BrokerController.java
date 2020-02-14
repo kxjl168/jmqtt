@@ -13,6 +13,7 @@ import org.jmqtt.broker.subscribe.DefaultSubscriptionTreeMatcher;
 import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.jmqtt.common.config.BrokerConfig;
 import org.jmqtt.common.config.ClusterConfig;
+import org.jmqtt.common.config.IotConfig;
 import org.jmqtt.common.config.NettyConfig;
 import org.jmqtt.common.config.RuleConfig;
 import org.jmqtt.common.config.StoreConfig;
@@ -25,14 +26,19 @@ import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.group.ClusterRemotingClient;
 import org.jmqtt.group.ClusterRemotingServer;
 import org.jmqtt.group.MessageTransfer;
+import org.jmqtt.group.message.WebSRequestListener;
 import org.jmqtt.broker.dispatcher.DefaultMessageTransfer;
 import org.jmqtt.broker.dispatcher.InnerMessageTransfer;
 import org.jmqtt.group.processor.ClusterOuterAPI;
 import org.jmqtt.group.processor.ClusterRequestProcessor;
 import org.jmqtt.group.processor.FetchNodeProcessor;
+import org.jmqtt.group.processor.WebSRequestProcessor;
 import org.jmqtt.group.protocol.ClusterRequestCode;
 import org.jmqtt.group.remoting.NettyClusterRemotingClient;
 import org.jmqtt.group.remoting.NettyClusterRemotingServer;
+import org.jmqtt.iot.acl.IOTConnectPermission;
+import org.jmqtt.iot.processor.IotObjectEngin;
+import org.jmqtt.iot.processor.impl.DefaultIOTObjectEngin;
 import org.jmqtt.remoting.netty.ChannelEventListener;
 import org.jmqtt.remoting.netty.NettyRemotingServer;
 import org.jmqtt.remoting.netty.RequestProcessor;
@@ -41,6 +47,8 @@ import org.jmqtt.rule.processor.impl.DefaultIOTRuleEngin;
 import org.jmqtt.store.*;
 import org.jmqtt.store.memory.DefaultMqttStore;
 import org.jmqtt.store.rocksdb.RDBMqttStore;
+import org.jmqtt.web.listener.impl.DefaultWebSRequestListenerImpl;
+
 import org.jmqtt.web.remoting.DefaultWebNettyRemotingServer;
 import org.jmqtt.web.remoting.WebRemotingServer;
 import org.slf4j.Logger;
@@ -61,6 +69,7 @@ public class BrokerController {
     private ClusterConfig clusterConfig;
     private WebConfig webConfig;
     private RuleConfig ruleConfig;
+    private IotConfig iotConfig;
     
     
     private ExecutorService connectExecutor;
@@ -79,6 +88,8 @@ public class BrokerController {
     private WillMessageStore willMessageStore;
     
     private RuleMessageStore ruleMessageStore;
+    private ObjectModelMessageStore iotObjectModelMessageStore;
+    
     
     private RetainMessageStore retainMessageStore;
     private OfflineMessageStore offlineMessageStore;
@@ -103,14 +114,21 @@ public class BrokerController {
     private WebRemotingServer webRemotingServer;
     private ExecutorService webExecutorService;
     
+    private IotObjectEngin iotEngin;
+    private ExecutorService iotExecutorService;
+    
+    private WebSRequestListener websrequestListener;
 
-    public BrokerController(BrokerConfig brokerConfig, NettyConfig nettyConfig, StoreConfig storeConfig, ClusterConfig clusterConfig,WebConfig webConfig,RuleConfig ruleConfig) {
+    public BrokerController(BrokerConfig brokerConfig, NettyConfig nettyConfig,
+    		StoreConfig storeConfig, ClusterConfig clusterConfig
+    		,WebConfig webConfig,RuleConfig ruleConfig,IotConfig iotConfig) {
         this.brokerConfig = brokerConfig;
         this.nettyConfig = nettyConfig;
         this.storeConfig = storeConfig;
         this.clusterConfig = clusterConfig;
         this.webConfig=webConfig;
         this.ruleConfig=ruleConfig;
+        this.iotConfig=iotConfig;
 
         this.connectQueue = new LinkedBlockingQueue(100000);
         this.pubQueue = new LinkedBlockingQueue(100000);
@@ -139,11 +157,16 @@ public class BrokerController {
             this.subscriptionStore = this.abstractMqttStore.getSubscriptionStore();
             this.sessionStore = this.abstractMqttStore.getSessionStore();
             this.ruleMessageStore=this.abstractMqttStore.getRuleMessageStore();
+            
+            this.iotObjectModelMessageStore=this.abstractMqttStore.getIotObjectModelMessageStore();
         }
 
         {// permission pluggable
-            this.connectPermission = new DefaultConnectPermission();
+           // this.connectPermission = new DefaultConnectPermission();
             this.pubSubPermission = new DefaultPubSubPermission();
+            
+            //iot鉴权 zj
+            this.connectPermission=new IOTConnectPermission(iotObjectModelMessageStore, iotConfig);
         }
 
         this.subscriptionMatcher = new DefaultSubscriptionTreeMatcher();
@@ -200,6 +223,29 @@ public class BrokerController {
                 new ThreadFactoryImpl("ClusterThread"),
                 new RejectHandler("sub", 100000));
         
+    
+        this.webExecutorService = new ThreadPoolExecutor(coreThreadNum * 2,
+                coreThreadNum * 2,
+                60000,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(10000),
+                new ThreadFactoryImpl("WebThread"),
+                new RejectHandler("sub", 100000));
+        
+        
+        this.iotExecutorService = new ThreadPoolExecutor(coreThreadNum * 2,
+                coreThreadNum * 2,
+                60000,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(10000),
+                new ThreadFactoryImpl("IotThread"),
+                new RejectHandler("sub", 100000));
+        
+        //iot zj
+        this.iotEngin=new DefaultIOTObjectEngin(coreThreadNum * 2, iotObjectModelMessageStore, subscriptionMatcher, messageDispatcher, iotExecutorService, iotConfig, innerMessageTransfer);
+        //日志下行
+        this.messageDispatcher.setIotEngin(this.iotEngin);
+        
         this.ruleExecutorService = new ThreadPoolExecutor(coreThreadNum * 2,
                 coreThreadNum * 2,
                 60000,
@@ -209,18 +255,17 @@ public class BrokerController {
                 new RejectHandler("sub", 100000));
         //zj
         this.ruleEngin=new DefaultIOTRuleEngin(coreThreadNum * 2, ruleMessageStore, subscriptionMatcher, messageDispatcher, ruleExecutorService,ruleConfig,innerMessageTransfer);
-
-        this.webExecutorService = new ThreadPoolExecutor(coreThreadNum * 2,
-                coreThreadNum * 2,
-                60000,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(10000),
-                new ThreadFactoryImpl("WebThread"),
-                new RejectHandler("sub", 100000));
-        //zj
-        this.webRemotingServer=new DefaultWebNettyRemotingServer(ruleEngin, webConfig, brokerConfig, nettyConfig, storeConfig, clusterConfig, 
-        	ruleConfig,subscriptionStore,	 webExecutorService);
+        this.ruleEngin.setIotEngin(this.iotEngin);
         
+        
+         websrequestListener=new DefaultWebSRequestListenerImpl(iotEngin,ruleEngin,iotObjectModelMessageStore,innerMessageTransfer,messageDispatcher);
+        
+        //zj
+        this.webRemotingServer=new DefaultWebNettyRemotingServer(ruleEngin,iotEngin, webConfig, brokerConfig, nettyConfig, storeConfig, clusterConfig, 
+        	ruleConfig,subscriptionStore,	 webExecutorService,websrequestListener,innerMessageTransfer);
+        
+        
+      
     }
 
 
@@ -231,6 +276,8 @@ public class BrokerController {
         MixAll.printProperties(log, storeConfig);
         MixAll.printProperties(log, clusterConfig);
         MixAll.printProperties(log, ruleConfig);
+        MixAll.printProperties(log, iotConfig);
+        
         
         
 
@@ -279,6 +326,13 @@ public class BrokerController {
         {//init and register cluster processor
             ClusterRequestProcessor fetchNodeProcessor = new FetchNodeProcessor();
             this.clusterServer.registerClusterProcessor(ClusterRequestCode.FETCH_NODES,fetchNodeProcessor,clusterService);
+            
+           
+            //zj web-cluster
+            ClusterRequestProcessor webrequestProcessor=new WebSRequestProcessor(websrequestListener);
+            this.clusterServer.registerClusterProcessor(ClusterRequestCode.NOTICE_RULE_CHAGNEND,webrequestProcessor,clusterService);
+            this.clusterServer.registerClusterProcessor(ClusterRequestCode.NOTICE_OBJ_MODEL_CHAGNEND,webrequestProcessor,clusterService);
+            
         }
         this.innerMessageTransfer.init();
         this.clusterClient.start();
@@ -290,6 +344,7 @@ public class BrokerController {
         
         this.ruleEngin.start();
         this.webRemotingServer.start();
+        this.iotEngin.start();
         log.info("JMqtt Server start success and version = {}", brokerConfig.getVersion());
     }
 
@@ -308,6 +363,7 @@ public class BrokerController {
         
         this.ruleEngin.shutdown();
         this.webRemotingServer.shutdown();
+        this.iotEngin.shutdown();
     }
 
     public BrokerConfig getBrokerConfig() {
@@ -442,5 +498,15 @@ public class BrokerController {
 
 	public void setRuleEngin(RuleEngin ruleEngin) {
 		this.ruleEngin = ruleEngin;
+	}
+
+
+	public IotObjectEngin getIotEngin() {
+		return iotEngin;
+	}
+
+
+	public void setIotEngin(IotObjectEngin iotEngin) {
+		this.iotEngin = iotEngin;
 	}
 }

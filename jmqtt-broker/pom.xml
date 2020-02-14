@@ -19,6 +19,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.test.skip>true</maven.test.skip>
+        
     </properties>
 
     <dependencies>
@@ -47,6 +49,11 @@
           <dependency>
             <groupId>org.jmqtt</groupId>
             <artifactId>jmqtt-web</artifactId>
+        </dependency>
+        
+          <dependency>
+            <groupId>org.jmqtt</groupId>
+            <artifactId>jmqtt-iot</artifactId>
         </dependency>
     </dependencies>
 

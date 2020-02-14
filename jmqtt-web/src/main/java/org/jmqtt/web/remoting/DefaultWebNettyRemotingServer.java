@@ -18,15 +18,20 @@ import org.jmqtt.common.config.StoreConfig;
 import org.jmqtt.common.config.WebConfig;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
+import org.jmqtt.group.ClusterMessageTransfer;
+import org.jmqtt.group.message.WebSRequestListener;
+import org.jmqtt.iot.processor.IotObjectEngin;
 import org.jmqtt.remoting.netty.NettyConnectHandler;
 import org.jmqtt.remoting.netty.NettyEventExcutor;
 import org.jmqtt.web.common.WebRemotingCommand;
 import org.jmqtt.web.common.WebRequestCode;
+
 import org.jmqtt.rule.processor.RuleEngin;
 import org.jmqtt.store.SubscriptionStore;
 import org.jmqtt.web.processor.WebRequestProcessor;
 import org.jmqtt.web.processor.impl.DefaultEnginRuleChangeProcessor;
 import org.jmqtt.web.processor.impl.DefaultGroupProcessor;
+import org.jmqtt.web.processor.impl.DefaultIotModelChangeProcessor;
 import org.jmqtt.web.processor.impl.DefaultNodeConfigProcessor;
 import org.jmqtt.web.processor.impl.DefaultTopicProcessor;
 import org.jmqtt.web.codec.NettyWebDecoder;
@@ -63,11 +68,15 @@ public class DefaultWebNettyRemotingServer extends AbstractNettyServer implement
 	// private ScheduledExecutorService schudure = new
 	// ScheduledThreadPoolExecutor(1,new
 	// ThreadFactoryImpl("ScanResponseTableThread"));
+	
+	private WebSRequestListener webRequestListener;
+	private ClusterMessageTransfer clusterMessageTransfer;
+	
 
-	public DefaultWebNettyRemotingServer(RuleEngin ruleEngin, WebConfig wConfig, BrokerConfig brokerConfig,
+	public DefaultWebNettyRemotingServer(RuleEngin ruleEngin,IotObjectEngin iotEngin, WebConfig wConfig, BrokerConfig brokerConfig,
 			NettyConfig nettyConfig, StoreConfig storeConfig, ClusterConfig clusterConfig,
 			RuleConfig ruleConfig, SubscriptionStore subScriptionStore,
-			ExecutorService executorService) {
+			ExecutorService executorService, WebSRequestListener webRequestListener, ClusterMessageTransfer clusterMessageTransfer) {
 		this.webConfig = wConfig;
 		// if(!clusterConfig.isGroupUseEpoll()){
 		selectorGroup = new NioEventLoopGroup(webConfig.getGroupSelectorThreadNum(),
@@ -90,11 +99,17 @@ public class DefaultWebNettyRemotingServer extends AbstractNettyServer implement
 		this.storeConfig = storeConfig;
 		this.clusterConfig = clusterConfig;
 		this.ruleEngin = ruleEngin;
+		this.iotEngin=iotEngin;
+		
 		this.webConfig=wConfig;
 		this.ruleConfig=ruleConfig;
 		
 		this.subScriptionStore=subScriptionStore;
 
+		
+		this.webRequestListener=webRequestListener;
+		this.clusterMessageTransfer=clusterMessageTransfer;
+		
 		registerDefaultProcessor(executorService);
 	}
 
@@ -105,8 +120,13 @@ public class DefaultWebNettyRemotingServer extends AbstractNettyServer implement
 	 * @date 2020年1月6日
 	 */
 	private void registerDefaultProcessor(ExecutorService executorService) {
-		DefaultEnginRuleChangeProcessor ruleProcessor = new DefaultEnginRuleChangeProcessor(this.ruleEngin);
+		DefaultEnginRuleChangeProcessor ruleProcessor = new DefaultEnginRuleChangeProcessor(ruleEngin,clusterMessageTransfer);
 		registerWebProcessor(WebRequestCode.SAVE_OR_UPDATE_RULE, ruleProcessor, executorService);
+		
+		
+		WebRequestProcessor iotProcessor = new DefaultIotModelChangeProcessor (this.iotEngin);
+		registerWebProcessor(WebRequestCode.SAVE_OR_UPDATE_IOT_MODEL, iotProcessor, executorService);
+	
 		
 		DefaultGroupProcessor groupProcessor = new DefaultGroupProcessor();
 		registerWebProcessor(WebRequestCode.QUERY_NODES_STATUS, groupProcessor, executorService);

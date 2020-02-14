@@ -28,6 +28,8 @@
             <groupId>org.jmqtt</groupId>
             <artifactId>jmqtt-remoting</artifactId>
         </dependency>
+        
+     
     </dependencies>
 
 </project>

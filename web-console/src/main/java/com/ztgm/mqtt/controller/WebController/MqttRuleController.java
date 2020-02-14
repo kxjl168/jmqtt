@@ -26,6 +26,13 @@ import com.ztgm.mqtt.service.MqttRuleService;
 import net.sf.json.JSONObject;
 
 import org.jmqtt.common.bean.ZRule;
+import org.jmqtt.common.bean.iot.IotDevice;
+import org.jmqtt.common.bean.iot.IotEvent;
+import org.jmqtt.common.bean.iot.IotFunction;
+import org.jmqtt.common.bean.iot.IotObject;
+import org.jmqtt.common.bean.iot.IotProperty;
+import org.jmqtt.common.bean.iot.IotTopic;
+import org.jmqtt.common.helper.SerializeHelper;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -62,6 +69,16 @@ public class MqttRuleController {
 		return "/backend/page/mqttrule/index.ftl";
 	}
 
+	
+	/**
+	 * 模拟获取规则引擎数据
+	 * @param item
+	 * @param request
+	 * @param pageCondition
+	 * @return
+	 * @author zj
+	 * @date 2020年2月10日
+	 */
 	@RequestMapping("/interface/proRuleList")
 	@NoNeedAuthorization
 	@ResponseBody
@@ -78,6 +95,82 @@ public class MqttRuleController {
 
 		try {
 			rst = AppResultUtil.success(rstrule);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return rst;
+	}
+
+	
+	/**
+	 * 模拟获取物模型
+	 * @param item
+	 * @param request
+	 * @param pageCondition
+	 * @return
+	 * @author zj
+	 * @date 2020年2月10日
+	 */
+	@RequestMapping("/interface/proIotList")
+	@NoNeedAuthorization
+	@ResponseBody
+	public AppResult proIotList(MqttRule item, HttpServletRequest request, PageCondition pageCondition) {
+
+		AppResult rst = AppResultUtil.fail();
+		List<ZRule> rstrule = new ArrayList<>();
+
+		
+		List<IotObject> models=new ArrayList<>();
+		
+		IotObject testLight = new IotObject();
+
+		testLight.setAutoRegister("true");
+		testLight.setName("灯");
+		testLight.setIdentifier("light");
+		testLight.setObjectType("Ligth");
+		testLight.setProductKey("testKey");
+
+		List<IotProperty> pros = new ArrayList<IotProperty>();
+		IotProperty plight = new IotProperty();
+		plight.setIdentifier("Brightness");
+		pros.add(plight);
+
+		List<IotFunction> funcs = new ArrayList<IotFunction>();
+		IotFunction pfun = new IotFunction();
+		pfun.setIdentifier("ToggleLightSwitch");
+		funcs.add(pfun);
+
+		List<IotEvent> events = new ArrayList<IotEvent>();
+		IotEvent event = new IotEvent();
+		event.setIdentifier("Error");
+		events.add(event);
+
+		List<IotTopic> topics = new ArrayList<IotTopic>();
+		IotTopic topic = new IotTopic();
+		topic.setTopicName("/sys/${productKey}/${deviceName}/thing/event/property/post");
+		topics.add(topic);
+
+		testLight.setServiceDTOList(funcs);
+		testLight.setEventDTOList(events);
+		testLight.setTopics(topics);
+		testLight.setPropertyDTOList(pros);
+		
+		List<IotDevice> devices=new ArrayList<>();
+		IotDevice device1=new IotDevice();
+		device1.setDeviceName("device1");
+		device1.setDeviceSecret("123");
+		devices.add(device1);
+		
+		testLight.setDevices(devices);
+
+		models.add(testLight);
+		
+		String lightStr = new String(SerializeHelper.serialize(models));
+		System.out.println(lightStr);
+
+		try {
+			rst = AppResultUtil.success(lightStr);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

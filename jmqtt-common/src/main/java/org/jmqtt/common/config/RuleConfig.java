@@ -2,23 +2,22 @@ package org.jmqtt.common.config;
 
 public class RuleConfig {
 
-	private String ruleweburl="";
-	private boolean ruleenable=true;
+	private String ruleweburl = "";
+	private boolean ruleenable = true;
 
-		public String getRuleweburl() {
-			return ruleweburl;
-		}
+	public String getRuleweburl() {
+		return ruleweburl;
+	}
 
-		public void setRuleweburl(String ruleweburl) {
-			this.ruleweburl = ruleweburl;
-		}
+	public void setRuleweburl(String ruleweburl) {
+		this.ruleweburl = ruleweburl;
+	}
 
+	public boolean isRuleenable() {
+		return ruleenable;
+	}
 
-		public boolean isRuleenable() {
-			return ruleenable;
-		}
-
-		public void setRuleenable(boolean ruleenable) {
-			this.ruleenable = ruleenable;
-		}
+	public void setRuleenable(boolean ruleenable) {
+		this.ruleenable = ruleenable;
+	}
 }

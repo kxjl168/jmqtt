@@ -50,6 +50,8 @@ public class NettyClusterRemotingServer extends AbstractNettyCluster implements 
     private ScheduledExecutorService schudure = new ScheduledThreadPoolExecutor(1,new ThreadFactoryImpl("ScanResponseTableThread"));
 
     private ClusterRemotingClient remotingClient;
+    
+    
 
     public NettyClusterRemotingServer(ClusterConfig clusterConfig, ClusterRemotingClient remotingClient){
         this.clusterConfig = clusterConfig;

@@ -78,40 +78,6 @@ public abstract class AbstractNettyCluster {
 
 	}
 
-	/**
-	 * 请求类型转换
-	 * 
-	 * @param requestcode
-	 * @return
-	 * @author zj
-	 * @date 2019年12月13日
-	 */
-	private String getRequestType(int requestcode) {
-		String requestTypeName = "NULL";
-		switch (requestcode) {
-		case ClusterRequestCode.FETCH_NODES:
-			requestTypeName = "FETCH_NODES";
-			break;
-		case ClusterRequestCode.NOTICE_NEW_CLIENT:
-			requestTypeName = "NOTICE_NEW_CLIENT";
-			break;
-		case ClusterRequestCode.SEND_MESSAGE:
-			requestTypeName = "SEND_MESSAGE";
-			break;
-		case ClusterRequestCode.TRANSFER_SESSION:
-			requestTypeName = "TRANSFER_SESSION";
-			break;
-		case ClusterRequestCode.TRANSFER_SESSION_MESSAGE:
-			requestTypeName = "TRANSFER_SESSION_MESSAGE";
-			break;
-
-		default:
-			break;
-		}
-
-		return requestTypeName;
-
-	}
 
 	public void invokeAsyncImpl(final Channel channel, final ClusterRemotingCommand command, final long timeout,
 			InvokeCallback invokeCallback) throws RemotingSendRequestException {
@@ -130,7 +96,7 @@ public abstract class AbstractNettyCluster {
 
 				// zj
 				log.debug("****cluster inner request begin***  opaque :{}, dest:{},requestType:{},chnnel:{}", opaque,
-						remotingAddr, command.getCode() + ":" + getRequestType(command.getCode()), channel.toString());
+						remotingAddr, command.getCode() + ":" + ClusterRequestCode. getRequestType(command.getCode()), channel.toString());
 
 				channel.writeAndFlush(command).addListener(new ChannelFutureListener() {
 					@Override
@@ -192,7 +158,7 @@ public abstract class AbstractNettyCluster {
 				public void run() {
 
 					log.debug("****cluster inner request arrived ***  opaque :{},requestType:{}, fromNode:{} ", opaque,
-							code + ":" + getRequestType(code), fromnode);
+							code + ":" + ClusterRequestCode.getRequestType(code), fromnode);
 
 					final ClusterRemotingCommand responseCommand = pair.getObject1().processRequest(ctx, cmd);
 					if (responseCommand != null) {
@@ -237,10 +203,10 @@ public abstract class AbstractNettyCluster {
 				responseFuture.release();
 			} else {
 				log.warn("cluster receive not exist response future, code={}, opaque={}.",
-						code + ":" + getRequestType(code), opaque);
+						code + ":" + ClusterRequestCode.getRequestType(code), opaque);
 			}
 		} else {
-			log.warn("receive response is error,response code={}", code + ":" + getRequestType(code));
+			log.warn("receive response is error,response opaque={}, rcode={}",opaque, rcode + ":" + ClusterResponseCode.getResponseType(rcode));
 		}
 
 		// zj add 清空原请求

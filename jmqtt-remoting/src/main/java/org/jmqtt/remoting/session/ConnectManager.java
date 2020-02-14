@@ -14,8 +14,10 @@ public class ConnectManager {
 
 	private Map<String, ClientSession> clientCache = new ConcurrentHashMap<>();
 
-	// productKey
+	// productKey 设备鉴权的 deviceName&productKey
 	private Map<String, String> clientUserNameCache = new ConcurrentHashMap<>();
+
+	private Map<String, String> clientUserNameClinetIdCache = new ConcurrentHashMap<>();
 
 	private static final ConnectManager INSTANCE = new ConnectManager();
 
@@ -25,23 +27,56 @@ public class ConnectManager {
 	public static ConnectManager getInstance() {
 		return INSTANCE;
 	}
-	
-		
-	
 
+	/**
+	 * 设备鉴权的 deviceName&productKey
+	 * 
+	 * @param clientId
+	 * @return
+	 * @author zj
+	 * @date 2020年2月10日
+	 */
 	public String getUserName(String clientId) {
 		return this.clientUserNameCache.get(clientId);
 	}
 
+	/**
+	 * 根据设备username&productkey 反查clientId
+	 * 
+	 * @param userName
+	 * @return
+	 * @author zj
+	 * @date 2020年2月14日
+	 */
+	public String getClientIdByUserName(String userName) {
+		return this.clientUserNameClinetIdCache.get(userName);
+	}
+
+	/*
+	 * 根据设备username&productkey  获取登陆session
+	 * @param userName
+	 * @return
+	 * @author zj
+	 * @date 2020年2月14日
+	 */
+	public ClientSession getClientByUserName(String userName) {
+		String clientId = this.clientUserNameClinetIdCache.get(userName);
+		return this.clientCache.get(clientId);
+	}
+
 	public String putUserName(String clientId, String userName) {
-		if (userName != null)
-			return this.clientUserNameCache.put(clientId, userName);
-		else
+		if (userName != null) {
+			String prevalue = this.clientUserNameCache.put(clientId, userName);
+
+			clientUserNameClinetIdCache.put(userName, clientId);
+			return prevalue;
+		} else
 			return "";
 	}
-	
+
 	/**
 	 * 当前节点总在线节点clinetIds
+	 * 
 	 * @return
 	 * @author zj
 	 * @date 2020年1月8日
@@ -49,9 +84,10 @@ public class ConnectManager {
 	public Set<String> getOnlineClinetIds() {
 		return clientCache.keySet();
 	}
-	
+
 	/**
 	 * 当前节点总在线数
+	 * 
 	 * @return
 	 * @author zj
 	 * @date 2020年1月8日
@@ -73,7 +109,10 @@ public class ConnectManager {
 	}
 
 	public ClientSession removeClient(String clientId) {
-		return this.clientCache.remove(clientId);
+		ClientSession session = this.clientCache.remove(clientId);
+		String userName = this.clientUserNameCache.remove(clientId);
+		clientUserNameClinetIdCache.remove(userName);
+		return session;
 	}
 
 	public void printAllSession() {

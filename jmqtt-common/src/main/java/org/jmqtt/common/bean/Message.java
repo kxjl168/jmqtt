@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.jmqtt.common.bean.msgdata.MsgActionType;
+import org.jmqtt.common.bean.msgdata.MsgLog;
+
 /**
  * inner message transfer from MqttMessage
  */
@@ -18,6 +21,10 @@ public class Message {
     private Type type;
 
     private byte[] payload;
+    
+    
+    //记录日志使用
+    private MsgActionType msgType;
 
     public Message(){};
 
@@ -154,4 +161,12 @@ public class Message {
                 ", payload=" + payload +
                 '}';
     }
+
+	public MsgActionType getMsgType() {
+		return msgType;
+	}
+
+	public void setMsgType(MsgActionType msgType) {
+		this.msgType = msgType;
+	}
 }

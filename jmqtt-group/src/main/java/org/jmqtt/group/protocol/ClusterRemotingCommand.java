@@ -57,6 +57,10 @@ public class ClusterRemotingCommand {
 
 		checkIntMax();
 	}
+	
+	public void refreshOpaque() {
+		opaque = requestId.incrementAndGet();
+	}
 
 	/**
 	 * 

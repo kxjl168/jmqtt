@@ -10,4 +10,7 @@ public class WebHeaderConstant {
      */
     public static final String TO_NODE_NAME = "toNodeName";
     public static final String TO_NODE_ADDRESS = "toNodeAdress";
+    
+    //错误信息
+    public static final String ERROR_MSG="error_msg";
 }

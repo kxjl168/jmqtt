@@ -16,7 +16,7 @@ import org.jmqtt.common.helper.Pair;
 import org.jmqtt.common.helper.RemotingHelper;
 import org.jmqtt.common.helper.SerializeHelper;
 import org.jmqtt.common.log.LoggerName;
-
+import org.jmqtt.iot.processor.IotObjectEngin;
 import org.jmqtt.remoting.exception.RemotingSendRequestException;
 import org.jmqtt.web.common.WebHeaderConstant;
 import org.jmqtt.web.common.WebRemotingCommand;
@@ -50,6 +50,8 @@ public abstract class AbstractNettyServer {
 	protected RuleConfig ruleConfig;
 	protected WebConfig webConfig;
 	protected SubscriptionStore subScriptionStore;
+	
+	protected IotObjectEngin iotEngin;
 
 	/**
 	 * Semaphore to limit maximum number of on-going asynchronous requests, which

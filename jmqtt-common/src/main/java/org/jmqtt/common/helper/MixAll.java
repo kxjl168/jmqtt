@@ -143,6 +143,9 @@ public class MixAll {
 						String key = firstChar.toLowerCase() + tmp;
 						String value = properties.getProperty(key);
 						if (value != null) {
+							//zj
+							value=value.trim();
+							//
 							Class<?>[] types = method.getParameterTypes();
 							if (types != null && types.length > 0) {
 								String type = types[0].getSimpleName();

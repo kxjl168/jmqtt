@@ -59,5 +59,17 @@ public interface MqttHelper {
 	 */
 	public void notifyNodeToRefreshRules(String productKey);
 	
+	
+	
+	/**
+	 * 通知节点刷新物模型数据
+	 * @param ipport
+	 * @param productKey
+	 * @return
+	 * @author zj
+	 * @date 2020年1月8日
+	 */
+	public void notifyNodeToRefreshIotModel(String productKey);
+	
 
 }

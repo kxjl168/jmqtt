@@ -6,6 +6,7 @@ import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jmqtt.common.config.BrokerConfig;
 import org.jmqtt.common.config.ClusterConfig;
+import org.jmqtt.common.config.IotConfig;
 import org.jmqtt.common.config.NettyConfig;
 import org.jmqtt.common.config.RuleConfig;
 import org.jmqtt.common.config.StoreConfig;
@@ -44,6 +45,7 @@ public class BrokerStartup {
         StoreConfig storeConfig = new StoreConfig();
         ClusterConfig clusterConfig =new ClusterConfig();
         RuleConfig ruleConfig=new RuleConfig();
+        IotConfig iotConfig=new IotConfig();
         
         WebConfig webConfig =new WebConfig();
         
@@ -58,7 +60,7 @@ public class BrokerStartup {
             
         }
         if(StringUtils.isNotEmpty(jmqttConfigPath)){
-            initConfig(jmqttConfigPath,brokerConfig,nettyConfig,storeConfig, clusterConfig,webConfig,ruleConfig);
+            initConfig(jmqttConfigPath,brokerConfig,nettyConfig,storeConfig, clusterConfig,webConfig,ruleConfig,iotConfig);
         }
         if(StringUtils.isEmpty(jmqttHome)){
             jmqttHome = brokerConfig.getJmqttHome();
@@ -75,7 +77,7 @@ public class BrokerStartup {
         lc.reset();
         configurator.doConfigure(jmqttHome + "/conf/logback_broker.xml");
 
-        BrokerController brokerController = new BrokerController(brokerConfig,nettyConfig, storeConfig, clusterConfig,webConfig,ruleConfig);
+        BrokerController brokerController = new BrokerController(brokerConfig,nettyConfig, storeConfig, clusterConfig,webConfig,ruleConfig,iotConfig);
         brokerController.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -101,7 +103,10 @@ public class BrokerStartup {
         return options;
     }
 
-    private static void initConfig(String jmqttConfigPath, BrokerConfig brokerConfig, NettyConfig nettyConfig, StoreConfig storeConfig, ClusterConfig clusterConfig,WebConfig webConfig,RuleConfig ruleConfig){
+    private static void initConfig(String jmqttConfigPath, BrokerConfig brokerConfig, NettyConfig nettyConfig,
+    		StoreConfig storeConfig, ClusterConfig clusterConfig,
+    		WebConfig webConfig,RuleConfig ruleConfig,
+    		IotConfig iotConfig){
         Properties properties = new Properties();
         BufferedReader  bufferedReader = null;
         try {
@@ -114,6 +119,8 @@ public class BrokerStartup {
             
             MixAll.properties2POJO(properties, ruleConfig);
             MixAll.properties2POJO(properties, webConfig);
+            MixAll.properties2POJO(properties, iotConfig);
+            
             
             
         } catch (FileNotFoundException e) {

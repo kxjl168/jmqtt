@@ -23,14 +23,27 @@ public class WebRequestCode {
 	public static final int QUERY_NODES_STATUS = 2;
 
 	/**
-	 * web端查询本节点配置
+	 * web端查询单个指定节点配置
 	 */
 	public static final int QUERY_NODE_CONFIG = 4;
 
 	/**
-	 * web端查询本节点topic信息
+	 * web端查询单个节点上的topic信息
 	 */
 	public static final int QUERY_NODE_TOPICS = 5;
+	
+	/**
+	 * WEB端保存更新物模型，修改属性，方法，事件，topic等
+	 */
+	public static final int SAVE_OR_UPDATE_IOT_MODEL = 6;
+
+	
+	/**
+	 * WEB端保存更新物模型影子数据
+	 */
+	public static final int SAVE_OR_UPDATE_IOT_SHADOW = 7;
+	
+	
 
 	/**
 	 * 请求类型转换
@@ -55,6 +68,14 @@ public class WebRequestCode {
 		case WebRequestCode.QUERY_NODE_CONFIG:
 			requestTypeName = "QUERY_NODE_CONFIG";
 			break;
+		case WebRequestCode.SAVE_OR_UPDATE_IOT_MODEL:
+			requestTypeName = "SAVE_OR_UPDATE_IOT_MODEL";
+			break;
+		case WebRequestCode.SAVE_OR_UPDATE_IOT_SHADOW:
+			requestTypeName = "SAVE_OR_UPDATE_IOT_SHADOW";
+			break;	
+			
+			
 
 		default:
 			break;

@@ -26,6 +26,7 @@ import org.jmqtt.common.bean.Message;
 import org.jmqtt.common.bean.MessageHeader;
 import org.jmqtt.common.bean.RuleType;
 import org.jmqtt.common.bean.ZRule;
+import org.jmqtt.common.bean.msgdata.MsgActionType;
 import org.jmqtt.common.config.RuleConfig;
 import org.jmqtt.common.constant.RuleConstants;
 import org.jmqtt.common.helper.HttpSendPostNew;
@@ -36,6 +37,7 @@ import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.common.subscribe.SubscriptionMatcher;
 import org.jmqtt.group.ClusterMessageTransfer;
+import org.jmqtt.iot.processor.IotObjectEngin;
 import org.jmqtt.remoting.session.ConnectManager;
 import org.jmqtt.rule.common.RuleDest;
 import org.jmqtt.rule.common.ZRuleCommand;
@@ -68,12 +70,22 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 
 	private RuleConfig ruleConfig;
 	private ClusterMessageTransfer clusterMessageTransfer;
+	
+	private IotObjectEngin iotEngin;
 
 	@Override
 	public boolean filter(Message message) {
+		
+		if(!ruleConfig.isRuleenable())
+		{
+			log.debug("rule [Message] not enable ,skip!");
+			return false;
+		}
+		
+		
 		boolean isNotFull = messageQueue.offer(message);
 		if (!isNotFull) {
-			log.warn("[Message] -> the buffer queue is full");
+			log.warn("[rule Message] -> the buffer queue is full");
 		}
 		return isNotFull;
 	}
@@ -98,6 +110,19 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 		defaultRuleDespatcher.registerProcessor(RuleType.ERROR, mqttProcessor, executorService);
 	}
 
+	
+	  /**
+     * 关联engin，转发引擎过滤日志
+     * @param iotEngin
+     * @author zj
+     * @date 2020年2月13日
+     */
+    public void setIotEngin(IotObjectEngin iotEngin) {
+    	this.iotEngin=iotEngin;
+    }
+  
+
+	
 	private ThreadPoolExecutor pollThread;
 	private int pollThreadNum;
 
@@ -218,6 +243,12 @@ public class DefaultIOTRuleEngin implements RuleEngin {
 
 				defaultRuleDespatcher.appendMessage(rcommand);
 			}
+			
+			
+			//通过iotengin，记录
+			msg.setMsgType(MsgActionType.Rule);
+            iotEngin.saveMsgLog(msg.getClientId(), msg);
+		
 
 		}).build();
 

@@ -7,11 +7,13 @@ import org.jmqtt.remoting.session.ClientSession;
 import org.jmqtt.common.bean.Message;
 import org.jmqtt.common.bean.MessageHeader;
 import org.jmqtt.common.bean.Subscription;
+import org.jmqtt.common.bean.msgdata.MsgActionType;
 import org.jmqtt.common.helper.RejectHandler;
 import org.jmqtt.common.helper.ThreadFactoryImpl;
 import org.jmqtt.common.log.LoggerName;
 import org.jmqtt.common.message.MessageDispatcher;
 import org.jmqtt.common.subscribe.SubscriptionMatcher;
+import org.jmqtt.iot.processor.IotObjectEngin;
 import org.jmqtt.remoting.session.ConnectManager;
 import org.jmqtt.remoting.util.MessageUtil;
 import org.jmqtt.store.FlowMessageStore;
@@ -40,13 +42,28 @@ public class DefaultDispatcherMessage implements MessageDispatcher {
     private SubscriptionMatcher subscriptionMatcher;
     private FlowMessageStore flowMessageStore;
     private OfflineMessageStore offlineMessageStore;
+    
+    private IotObjectEngin iotEngin;
 
-    public DefaultDispatcherMessage(int pollThreadNum, SubscriptionMatcher subscriptionMatcher, FlowMessageStore flowMessageStore, OfflineMessageStore offlineMessageStore) {
+    public DefaultDispatcherMessage(int pollThreadNum, SubscriptionMatcher subscriptionMatcher, FlowMessageStore flowMessageStore, OfflineMessageStore offlineMessageStore
+    		) {
         this.pollThreadNum = pollThreadNum;
         this.subscriptionMatcher = subscriptionMatcher;
         this.flowMessageStore = flowMessageStore;
         this.offlineMessageStore = offlineMessageStore;
+    
     }
+    
+    /**
+     * 关联engin，转发下行日志
+     * @param iotEngin
+     * @author zj
+     * @date 2020年2月13日
+     */
+    public void setIotEngin(IotObjectEngin iotEngin) {
+    	this.iotEngin=iotEngin;
+    }
+    
 
     @Override
     public void start() {
@@ -136,6 +153,14 @@ public class DefaultDispatcherMessage implements MessageDispatcher {
                                 }
                                 MqttPublishMessage publishMessage = MessageUtil.getPubMessage(message, false, qos, messageId);
                                 clientSession.getCtx().writeAndFlush(publishMessage);
+                                
+                                
+                                //zj
+                            	
+            					message.setMsgType(MsgActionType.Down);
+                                iotEngin.saveMsgLog(clientId, message);
+                                
+                                
                             } else {
                                 offlineMessageStore.addOfflineMessage(clientId, message);
                             }

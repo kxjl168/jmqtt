@@ -81,12 +81,49 @@ public class DefalutMqttHelper implements MqttHelper {
 	 * @date 2020年1月8日
 	 */
 	public void notifyNodeToRefreshRules(String productKey) {
-		
-		serverIPPORT = "192.168.100.41:29990";
-		
+
+		serverIPPORT = "192.168.100.126:39990";
+//
+		//serverIPPORT = "192.168.100.41:29990";
 		
 		WebRemotingCommand wcmd = new WebRemotingCommand();
 		wcmd.setCode(WebRequestCode.SAVE_OR_UPDATE_RULE);
+
+		wcmd.setBody(productKey.getBytes());
+		try {
+			nettyWebClient.invoke(true, serverIPPORT, wcmd, 2000, new InvokeCallback() {
+
+				@Override
+				public void invokeComplete(ResponseFuture responseFuture) {
+
+					NettyWebResponseFuture future = (NettyWebResponseFuture) responseFuture;
+
+				}
+			});
+		} catch (RemotingConnectException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	/**
+	 * 通知节点刷新物模型数据
+	 * 
+	 * @param ipport
+	 * @param productKey
+	 * @return
+	 * @author zj
+	 * @date 2020年1月8日
+	 */
+	public void notifyNodeToRefreshIotModel(String productKey) {
+
+		serverIPPORT = "192.168.100.41:29990";
+
+		WebRemotingCommand wcmd = new WebRemotingCommand();
+		wcmd.setCode(WebRequestCode.SAVE_OR_UPDATE_IOT_MODEL);
 
 		wcmd.setBody(productKey.getBytes());
 		try {

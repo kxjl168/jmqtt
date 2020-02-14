@@ -68,6 +68,9 @@ public class DefaultMessageTransfer implements MessageTransfer {
             	
             	log.info("inner cluster send message from {} to {}",currNode.getAddr(),node.getAddr());
             	
+            	//刷新id，避免相同数据
+            	message.refreshOpaque();
+            	
                 this.clusterRemotingClient.invokeAsync(addr, message, timeoutMillis, new InvokeCallback() {
                     @Override
                     public void invokeComplete(ResponseFuture responseFuture) {
